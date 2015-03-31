@@ -1,0 +1,173 @@
+#include <OpenGL/gl3.h>
+#include "misc.hpp"
+#include "GL_utilities.hpp"
+#include "loadobj.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "ProgramGraphics.hpp"
+#include "shaders.hpp"
+#include "models.hpp"
+#include "camera.hpp"
+#include "lighting.hpp"
+
+#define NEAR 1.0
+#define FAR 50.0
+#define RIGHT 1.0
+#define LEFT -1.0
+#define BOTTOM -1.0
+#define TOP 1.0
+
+void ProgramGraphics::init()
+{
+	printError("--"); // This function seems to generate one extra error in the beginning, don't know why
+
+	setupOpenGL();
+	loadShaders();
+	loadLightSources();
+	loadModels();
+
+	this->_camera = Camera::defaultCamera();
+}
+
+void ProgramGraphics::setupOpenGL()
+{
+	glClearColor(0, 0, 0, 0);
+	glEnable(GL_DEPTH_TEST);
+	printError("init opengl");
+}
+
+void ProgramGraphics::loadShaders()
+{
+	this->_shaders = new ShaderManager;
+	Shader* shader = new Shader("shaders/light_texture.vert", "shaders/light_texture.frag");
+	Texture* texture = new Texture("textures/maskros512.tga");
+	shader->addTexture(texture);
+	texture = new Texture("textures/ground_1024_Q3.tga");
+	shader->addTexture(texture);
+	this->_shaders->add("test", shader);
+	printError("init shader");
+}
+
+void ProgramGraphics::loadModels()
+{
+	Bunny* bunny = new Bunny;
+	bunny->move(glm::vec3(1.0, 0.0, 0.0));
+	this->_worldObjects.push_back(bunny);
+	bunny = new Bunny;
+	bunny->move(glm::vec3(-1.0, 0.0, 0.0));
+	this->_worldObjects.push_back(bunny);
+	bunny = new Bunny;
+	bunny->move(glm::vec3(0.0, 1.0, 0.0));
+	this->_worldObjects.push_back(bunny);
+	bunny = new Bunny;
+	bunny->move(glm::vec3(0.0, -1.0, 0.0));
+	this->_worldObjects.push_back(bunny);
+
+	glm::mat4 MTW = glm::mat4();
+	glm::mat4 WTV = glm::mat4();
+	glm::mat4 projectionMatrix = glm::frustum(LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
+	glUniformMatrix4fv(glGetUniformLocation(this->_shaders->get()->ID(), "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));
+	glUniformMatrix4fv(glGetUniformLocation(this->_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
+	glUniformMatrix4fv(glGetUniformLocation(this->_shaders->get()->ID(), "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+	printError("upload data");
+}
+
+void ProgramGraphics::loadLightSources()
+{
+	this->_lightSources = new LightSourceLoader();
+	LightSource* light = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	this->_lightSources->addLightSource(light);
+	light = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	this->_lightSources->addLightSource(light);
+	this->_lightSources->load(this->_shaders->get()->ID());
+}
+
+void ProgramGraphics::drawFrame(float t)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	this->handleKeys();
+	this->handleMouseMovement();
+
+	glm::mat4 WTV = this->_camera->WTVMatrix();
+	glUniformMatrix4fv(glGetUniformLocation(this->_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
+
+	for (auto it = this->_worldObjects.begin(); it != this->_worldObjects.end(); ++it)
+	{
+		(*it)->draw(this->_shaders->get()->ID());	
+	}
+	
+	printError("display");
+}
+
+void ProgramGraphics::handleKeys()
+{
+	static glm::vec3 step(0, 0, 0);
+	char stepTaken = 0;
+
+	if (glfwGetKey(this->_window, GLFW_KEY_W))
+	{
+		stepTaken = 1;
+		step.z = 1;
+	} 
+	else if (glfwGetKey(this->_window, GLFW_KEY_S))
+	{
+		stepTaken = 1;
+		step.z = -1;
+	}
+	
+	if (glfwGetKey(this->_window, GLFW_KEY_D))
+	{
+		stepTaken = 1;
+		step.x = 1;
+	} 
+	else if (glfwGetKey(this->_window, GLFW_KEY_A))
+	{
+		stepTaken = 1;
+		step.x = -1;
+	}
+
+	if (glfwGetKey(this->_window, GLFW_KEY_SPACE))
+	{
+		stepTaken = 1;
+		step.y = 1;
+	} 
+	else if (glfwGetKey(this->_window, GLFW_KEY_C))
+	{
+		stepTaken = 1;
+		step.y = -1;
+	}
+
+	if (stepTaken)
+	{
+		this->_camera->takeStep(step);
+		stepTaken = 0;
+		step.x = 0;
+		step.y = 0;
+		step.z = 0;
+	}
+}
+
+void ProgramGraphics::handleMouseMovement()
+{
+	double xPos;
+	double yPos;
+	glfwGetCursorPos(this->_window, &xPos, &yPos);
+	this->_camera->reorient((float)xPos, (float)yPos);
+}
+
+ ProgramGraphics::~ProgramGraphics()
+ {
+ 	delete this->_camera;
+ 	delete this->_shaders;
+ 	delete this->_lightSources;
+
+ 	for (auto &it : this->_worldObjects)
+ 	{
+ 		delete it;
+ 	}
+ }

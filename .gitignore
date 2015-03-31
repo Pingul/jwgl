@@ -1,0 +1,6 @@
+projspec.txt
+main
+*.out
+
+*.o
+*.dSYM
