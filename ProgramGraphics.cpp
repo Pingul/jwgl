@@ -43,9 +43,9 @@ void ProgramGraphics::loadShaders()
 {
 	this->_shaders = new ShaderManager;
 	Shader* shader = new Shader("shaders/light_texture.vert", "shaders/light_texture.frag");
-	Texture* texture = new Texture("textures/maskros512.tga");
+	Texture* texture1 = new Texture("textures/maskros512.tga");
+	Texture* texture2 = new Texture("textures/ground_1024_Q3.tga");
 	shader->addTexture(texture);
-	texture = new Texture("textures/ground_1024_Q3.tga");
 	shader->addTexture(texture);
 	this->_shaders->add("test", shader);
 	printError("init shader");
@@ -53,18 +53,18 @@ void ProgramGraphics::loadShaders()
 
 void ProgramGraphics::loadModels()
 {
-	Bunny* bunny = new Bunny;
-	bunny->move(glm::vec3(1.0, 0.0, 0.0));
-	this->_worldObjects.push_back(bunny);
-	bunny = new Bunny;
-	bunny->move(glm::vec3(-1.0, 0.0, 0.0));
-	this->_worldObjects.push_back(bunny);
-	bunny = new Bunny;
-	bunny->move(glm::vec3(0.0, 1.0, 0.0));
-	this->_worldObjects.push_back(bunny);
-	bunny = new Bunny;
-	bunny->move(glm::vec3(0.0, -1.0, 0.0));
-	this->_worldObjects.push_back(bunny);
+	Bunny* bunny1 = new Bunny;
+	Bunny* bunny2 = new Bunny;
+	Bunny* bunny3 = new Bunny;
+	Bunny* bunny4 = new Bunny;
+	bunny1->move(glm::vec3(1.0, 0.0, 0.0));
+	bunny2->move(glm::vec3(-1.0, 0.0, 0.0));
+	bunny3->move(glm::vec3(0.0, 1.0, 0.0));
+	bunny4->move(glm::vec3(0.0, -1.0, 0.0));
+	this->_worldObjects.push_back(bunny1);
+	this->_worldObjects.push_back(bunny2);
+	this->_worldObjects.push_back(bunny3);
+	this->_worldObjects.push_back(bunny4);
 
 	glm::mat4 MTW = glm::mat4();
 	glm::mat4 WTV = glm::mat4();
@@ -79,10 +79,10 @@ void ProgramGraphics::loadModels()
 void ProgramGraphics::loadLightSources()
 {
 	this->_lightSources = new LightSourceLoader();
-	LightSource* light = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
-	this->_lightSources->addLightSource(light);
-	light = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
-	this->_lightSources->addLightSource(light);
+	LightSource* light1 = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	LightSource* light2 = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	this->_lightSources->addLightSource(light1);
+	this->_lightSources->addLightSource(light2);
 	this->_lightSources->load(this->_shaders->get()->ID());
 }
 
