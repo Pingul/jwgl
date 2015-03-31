@@ -45,8 +45,8 @@ void ProgramGraphics::loadShaders()
 	Shader* shader = new Shader("shaders/light_texture.vert", "shaders/light_texture.frag");
 	Texture* texture1 = new Texture("textures/maskros512.tga");
 	Texture* texture2 = new Texture("textures/ground_1024_Q3.tga");
-	shader->addTexture(texture);
-	shader->addTexture(texture);
+	shader->addTexture(texture1);
+	shader->addTexture(texture2);
 	this->_shaders->add("test", shader);
 	printError("init shader");
 }
