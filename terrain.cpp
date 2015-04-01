@@ -134,7 +134,7 @@ void Terrain::generateModel()
 void Terrain::draw(GLuint shaderProgram)
 {
 	loadMTWMatrixToGPU(shaderProgram);
-	this->_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
+	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }
 
 float Terrain::heightAt(float x, float z)
@@ -158,7 +158,7 @@ float Terrain::heightAt(float x, float z)
 
 Terrain::~Terrain()
 {
-	delete this->_model;
+	delete _model;
 	free(_vertexArray);
 	free(_normalArray);
 	free(_indexArray);

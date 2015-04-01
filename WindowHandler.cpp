@@ -12,7 +12,7 @@ namespace jwgl
 
 	WindowHandler::WindowHandler(GraphicsHandler* graphicsHandler)
 	{
-		this->_graphicsHandler = graphicsHandler;
+		_graphicsHandler = graphicsHandler;
 
 		glfwInit();
 
@@ -25,32 +25,32 @@ namespace jwgl
 
 	void WindowHandler::createWindow()
 	{
-		this->_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "jwproj", nullptr, nullptr);
+		_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "jwproj", nullptr, nullptr);
 
-		glfwMakeContextCurrent(this->_window);
+		glfwMakeContextCurrent(_window);
 
 		glewExperimental = GL_TRUE;
 		glewInit();	
 
-		this->_graphicsHandler->registerWindow(this->_window);
-		this->_graphicsHandler->init();
+		_graphicsHandler->registerWindow(_window);
+		_graphicsHandler->init();
 	}
 
 	void WindowHandler::displayWindow()
 	{
-		if (!this->_window)
+		if (!_window)
 			throw std::runtime_error("No window created.");
 
-		while (!glfwWindowShouldClose(this->_window))
+		while (!glfwWindowShouldClose(_window))
 		{
-			this->_graphicsHandler->drawFrame(0);
+			_graphicsHandler->drawFrame(0);
 
-			glfwSwapBuffers(this->_window);
+			glfwSwapBuffers(_window);
 			glfwPollEvents();
 
-			if (glfwGetKey(this->_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			{
-				glfwSetWindowShouldClose(this->_window, GL_TRUE);
+				glfwSetWindowShouldClose(_window, GL_TRUE);
 			}
 		}
 	}

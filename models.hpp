@@ -18,7 +18,7 @@ class VertexModel
 	public:
 		VertexModel(Model* model) :
 			_tModel(model) {}
-		~VertexModel() { free(this->_tModel); }
+		~VertexModel() { free(_tModel); }
 
 		void draw(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture);
 
@@ -52,7 +52,7 @@ class WorldObject
 		virtual ~WorldObject() = default;
 
 		virtual void draw(GLuint shaderProgram) = 0;
-		virtual void move(glm::vec3 to) { this->_location = to; };
+		virtual void move(glm::vec3 to) { _location = to; };
 		virtual glm::vec3 at() { return _location; }
 
 	protected:

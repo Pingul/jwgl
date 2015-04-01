@@ -19,7 +19,7 @@ namespace jwgl
 		
 			virtual void drawFrame(float t) = 0;
 			virtual void init() = 0;
-			virtual void registerWindow(GLFWwindow* window) { this->_window = window; }
+			virtual void registerWindow(GLFWwindow* window) { _window = window; }
 
 		protected:
 			GLFWwindow* _window; // Necessary for key input

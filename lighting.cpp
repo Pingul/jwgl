@@ -4,12 +4,12 @@
 
 void LightSourceLoader::addLightSource(LightSource* lightSource)
 {
-	this->_lightSources.push_back(lightSource);
+	_lightSources.push_back(lightSource);
 }
 
 void LightSourceLoader::load(GLuint shaderProgram)
 {
-	int lightSourceCount = this->_lightSources.size();
+	int lightSourceCount = _lightSources.size();
 
 	glm::vec3* lightSourceColor = (glm::vec3*)malloc(lightSourceCount*sizeof(glm::vec3));
 	glm::vec3* lightSourceDirectionOrPosition = (glm::vec3*)malloc(lightSourceCount*sizeof(glm::vec3));
@@ -17,7 +17,7 @@ void LightSourceLoader::load(GLuint shaderProgram)
 	GLint* isDirectional = (GLint*)malloc(lightSourceCount*sizeof(GLint));
 
 	int index = 0;
-	for (const auto &i : this->_lightSources)
+	for (const auto &i : _lightSources)
 	{
 		lightSourceColor[index] = i->color();
 		lightSourceDirectionOrPosition[index] = i->locationOrDirection();
@@ -39,7 +39,7 @@ void LightSourceLoader::load(GLuint shaderProgram)
 
 LightSourceLoader::~LightSourceLoader()
 {
-	for (auto &it : this->_lightSources)
+	for (auto &it : _lightSources)
 	{
 		delete it;
 	}
