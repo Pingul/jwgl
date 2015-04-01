@@ -12,16 +12,6 @@ int sign(int value)
 	return 0;
 }
 
-Camera* Camera::defaultCamera()
-{
-	Camera* cam = new Camera;
-	cam->_location = (glm::vec3){0, 0, 15};
-	cam->_lookingAt = (glm::vec3){0, 0, 0};
-	cam->_upDirection = (glm::vec3){0, 1, 0};
-
-	return cam;
-}
-
 void Camera::reorient(int newX, int newY)
 {
 	static int x;

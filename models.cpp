@@ -59,6 +59,12 @@ bool ModelManager::isLoaded(MODEL_TYPE type)
 	return this->_models.find(type) != this->_models.end();
 }
 
+void WorldObject::loadMTWMatrixToGPU(GLuint shaderProgram)
+{
+	glm::mat4 MTW = glm::translate(glm::mat4(1.0), this->_location);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));	
+}
+
 
 
 
@@ -75,7 +81,6 @@ Bunny::Bunny()
 
 void Bunny::draw(GLuint shaderProgram)
 {
-	glm::mat4 MTW = glm::translate(glm::mat4(1.0), this->_location);
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));
+	loadMTWMatrixToGPU(shaderProgram);
 	this->_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }

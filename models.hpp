@@ -58,6 +58,8 @@ class WorldObject
 	protected:
 		glm::vec3 _location;
 		VertexModel* _model;
+
+		virtual void loadMTWMatrixToGPU(GLuint shaderProgram);
 };
 
 class Bunny : public WorldObject 

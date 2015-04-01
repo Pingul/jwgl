@@ -28,6 +28,7 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		void loadShaders();
 		void loadModels();
 		void loadLightSources();
+		void setupCamera();
 		void handleKeys();
 		void handleMouseMovement();
 };

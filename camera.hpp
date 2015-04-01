@@ -6,14 +6,13 @@
 class Camera
 {
 	public:
-		Camera() = default;
+		Camera(glm::vec3 location, glm::vec3 lookingAt, glm::vec3 upDirection) :
+			_location(location), _lookingAt(lookingAt), _upDirection(upDirection) {}
 		~Camera() = default;
 
 		void reorient(int newX, int newY);
 		void takeStep(glm::vec3 directionRelativeToCamera);
 		glm::mat4 WTVMatrix();
-
-		static Camera* defaultCamera();
 
 	private:
 		glm::vec3 _location;

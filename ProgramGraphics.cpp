@@ -12,9 +12,10 @@
 #include "models.hpp"
 #include "camera.hpp"
 #include "lighting.hpp"
+#include "terrain.hpp"
 
 #define NEAR 1.0
-#define FAR 50.0
+#define FAR 300.0
 #define RIGHT 1.0
 #define LEFT -1.0
 #define BOTTOM -1.0
@@ -28,14 +29,14 @@ void ProgramGraphics::init()
 	loadShaders();
 	loadLightSources();
 	loadModels();
-
-	this->_camera = Camera::defaultCamera();
+	setupCamera();
 }
 
 void ProgramGraphics::setupOpenGL()
 {
 	glClearColor(0, 0, 0, 0);
 	glEnable(GL_DEPTH_TEST);
+
 	printError("init opengl");
 }
 
@@ -48,7 +49,20 @@ void ProgramGraphics::loadShaders()
 	shader->addTexture(texture1);
 	shader->addTexture(texture2);
 	this->_shaders->add("test", shader);
+
 	printError("init shader");
+}
+
+void ProgramGraphics::loadLightSources()
+{
+	this->_lightSources = new LightSourceLoader();
+	LightSource* light1 = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	LightSource* light2 = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	this->_lightSources->addLightSource(light1);
+	this->_lightSources->addLightSource(light2);
+	this->_lightSources->load(this->_shaders->get()->ID());
+
+	printError("upload light sources");
 }
 
 void ProgramGraphics::loadModels()
@@ -66,6 +80,9 @@ void ProgramGraphics::loadModels()
 	this->_worldObjects.push_back(bunny3);
 	this->_worldObjects.push_back(bunny4);
 
+	Terrain* terrain = Terrain::generate("models/fft-terrain.tga");
+	this->_worldObjects.push_back(terrain);	
+
 	glm::mat4 MTW = glm::mat4();
 	glm::mat4 WTV = glm::mat4();
 	glm::mat4 projectionMatrix = glm::frustum(LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
@@ -76,14 +93,12 @@ void ProgramGraphics::loadModels()
 	printError("upload data");
 }
 
-void ProgramGraphics::loadLightSources()
+void ProgramGraphics::setupCamera()
 {
-	this->_lightSources = new LightSourceLoader();
-	LightSource* light1 = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
-	LightSource* light2 = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
-	this->_lightSources->addLightSource(light1);
-	this->_lightSources->addLightSource(light2);
-	this->_lightSources->load(this->_shaders->get()->ID());
+	glm::vec3 location(0, 0, 15);
+	glm::vec3 lookingAt(0, 0, 0);
+	glm::vec3 upDirection(0, 1, 0);
+	this->_camera = new Camera(location, lookingAt, upDirection);
 }
 
 void ProgramGraphics::drawFrame(float t)
