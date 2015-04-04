@@ -1,16 +1,16 @@
 #include "terrain.hpp"
 
-glm::vec3 Terrain::vecFromArrayAndIndex(GLfloat* array, int index)
+glm::vec3 TerrainGenerator::vecFromArrayAndIndex(GLfloat* array, int index)
 {
 	return glm::vec3(array[index*3], array[index*3 + 1], array[index*3 + 2]);
 }
 
-char Terrain::outOfBounds(int x, int z, int width, int height)
+char TerrainGenerator::outOfBounds(int x, int z, int width, int height)
 {
 	return !(x >= 0 && x < width && z >= 0 && z < height);
 }
 
-int Terrain::textureIndex(int x, int z, int offsetX, int offsetZ)
+int TerrainGenerator::textureIndex(int x, int z, int offsetX, int offsetZ)
 {
 	if (outOfBounds(x + offsetX, z + offsetZ, _textureData.width, _textureData.height))
 		return x + z*_textureData.width;
@@ -18,29 +18,29 @@ int Terrain::textureIndex(int x, int z, int offsetX, int offsetZ)
 		return x + offsetX + (z + offsetZ)*_textureData.width;
 }
 
-Terrain* Terrain::generate(const char* filePath)
+Terrain* TerrainGenerator::generateTerrain(const char* filePath)
 {
-	Terrain* terrain = new Terrain;
-	terrain->loadTextureData(filePath);
-	terrain->calculatVertices();
-	terrain->calculateIndices();
-	terrain->calculateNormalVectors();
-	terrain->generateModel();
+	loadTextureData(filePath);
+	calculatVertices();
+	calculateIndices();
+	calculateNormalVectors();
+	generateModel();
+	Terrain* terrain = new Terrain(_model, _textureData);
 	return terrain;
 }
 
-void Terrain::loadTextureData(const char* filePath)
+void TerrainGenerator::loadTextureData(const char* filePath)
 {
 	LoadTGATextureData((char*)filePath, &_textureData);
 	_vertexCount = _textureData.width*_textureData.height;
 	_triangleCount = (_textureData.width - 1)*(_textureData.height - 1)*2;
 	_vertexArray = (GLfloat*)malloc(3*_vertexCount*sizeof(GLfloat));
 	_texCoordArray = (GLfloat*)malloc(2*_vertexCount*sizeof(GLfloat));
-	_normalArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * _vertexCount);
+	_normalArray = (GLfloat*)malloc(3*_vertexCount*sizeof(GLfloat));
 	_indexArray = (GLuint*)malloc(3*_triangleCount*sizeof(GLuint));
 }
 
-void Terrain::calculatVertices()
+void TerrainGenerator::calculatVertices()
 {
 	for (int x = 0; x < _textureData.width; ++x)
 	{
@@ -58,7 +58,7 @@ void Terrain::calculatVertices()
 	}
 }
 
-void Terrain::calculateIndices()
+void TerrainGenerator::calculateIndices()
 {
 	for (int x = 0; x < _textureData.width - 1; ++x)
 	{
@@ -76,7 +76,7 @@ void Terrain::calculateIndices()
 	}
 }
 
-void Terrain::calculateNormalVectors()
+void TerrainGenerator::calculateNormalVectors()
 {
 	for (int x = 0; x < _textureData.width; ++x)
 	{
@@ -115,7 +115,7 @@ void Terrain::calculateNormalVectors()
 	}
 }
 
-void Terrain::generateModel()
+void TerrainGenerator::generateModel()
 {
 	Model* tModel = LoadDataToModel(
 		_vertexArray,
@@ -126,7 +126,8 @@ void Terrain::generateModel()
 		_vertexCount,
 		3*_triangleCount);
 
-	VertexModel* vertexModel = new VertexModel(tModel);
+	VertexModel* vertexModel = new VertexModel;
+	vertexModel->loadModel(tModel);
 	_model = vertexModel;
 }
 
@@ -134,7 +135,7 @@ void Terrain::generateModel()
 void Terrain::draw(GLuint shaderProgram)
 {
 	loadMTWMatrixToGPU(shaderProgram);
-	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
+	_model->drawModel(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }
 
 float Terrain::heightAt(float x, float z)
@@ -146,8 +147,8 @@ float Terrain::heightAt(float x, float z)
 
 	int index = intPartX + intPartZ*_textureData.width;
 
-	glm::vec3 vertexLocation(_vertexArray[index*3], _vertexArray[index*3 + 1], _vertexArray[index*3 + 2]);
-	glm::vec3 normalVector(_normalArray[index*3], _normalArray[index*3 + 1], _normalArray[index*3 + 2]);
+	glm::vec3 vertexLocation(_model->vertexArray()[index*3], _model->vertexArray()[index*3 + 1], _model->vertexArray()[index*3 + 2]);
+	glm::vec3 normalVector(_model->normalArray()[index*3], _model->normalArray()[index*3 + 1], _model->normalArray()[index*3 + 2]);
 	glm::vec3 movementVector(decimalPartX, 0, decimalPartZ);
 
 	glm::vec3 planeVector = glm::cross(normalVector, movementVector);
@@ -159,8 +160,4 @@ float Terrain::heightAt(float x, float z)
 Terrain::~Terrain()
 {
 	delete _model;
-	free(_vertexArray);
-	free(_normalArray);
-	free(_indexArray);
-	free(_texCoordArray);
 }

@@ -17,14 +17,25 @@ typedef enum
 class VertexModel
 {
 	public:
-		VertexModel(Model* model) :
-			_tModel(model) {}
+		VertexModel() = default;
 		~VertexModel() { free(_tModel); }
 
-		void draw(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture);
+		void loadModel(const char* filePath);
+		void loadModel(Model* model); // In cases where the model is already create (e.g. terrain)
+		void drawModel(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture);
+		GLfloat* vertexArray() { return _vertexArray; }
+		GLfloat* normalArray() { return _normalArray; }
+		GLfloat* texCoordArray() { return _texCoordArray; }
+		GLuint* indexArray() { return _indexArray; }
 
 	private:
-		Model* _tModel;
+		GLfloat* _vertexArray;
+		GLfloat* _normalArray;
+		GLfloat* _texCoordArray;
+		GLuint* _indexArray;
+
+		Model* _tModel; // Avoid using, as we're trying to wrap its functionality
+
 };
 
 class ModelManager
@@ -62,6 +73,9 @@ class WorldObject
 		virtual bool isAffectedByGravity() { return true; }
 
 	protected:
+		WorldObject(VertexModel* model) :
+			_model(model) {}
+
 		glm::vec3 _location;
 		glm::vec3 _velocity;
 		VertexModel* _model;

@@ -8,14 +8,25 @@
 class Terrain : public WorldObject
 {
 	public:
-		Terrain() = default;
+		Terrain(VertexModel* model, TextureData textureData) :
+			_textureData(textureData) { _model = model; }
 		~Terrain();
 
 		virtual bool isAffectedByGravity() { return false; }
 		virtual void draw(GLuint shaderProgram);
 		float heightAt(float x, float y);
 
-		static Terrain* generate(const char* filePath);
+	private:
+		TextureData _textureData;
+};
+
+class TerrainGenerator
+{
+	public:
+		TerrainGenerator() = default;
+		~TerrainGenerator() = default;
+
+		Terrain* generateTerrain(const char* filePath);
 
 	private:
 		int _vertexCount;

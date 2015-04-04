@@ -7,10 +7,31 @@
 
 #include "models.hpp"
 
-void VertexModel::draw(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture)
+void VertexModel::loadModel(const char* filePath)
+{
+	_tModel = LoadModelPlus(filePath);
+
+	_vertexArray = _tModel->vertexArray;
+	_normalArray = _tModel->normalArray;
+	_texCoordArray = _tModel->texCoordArray;
+	_indexArray = _tModel->indexArray;
+}
+
+void VertexModel::loadModel(Model* model)
+{
+	_tModel = model;
+
+	_vertexArray = _tModel->vertexArray;
+	_normalArray = _tModel->normalArray;
+	_texCoordArray = _tModel->texCoordArray;
+	_indexArray = _tModel->indexArray;
+}
+
+void VertexModel::drawModel(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture)
 {
 	DrawModel(_tModel, shaderProgram, inPosition, inNormal, inTexture);
 }
+
 
 ModelManager* ModelManager::_shared = new ModelManager;
 
@@ -29,20 +50,19 @@ ModelManager::~ModelManager()
 
 VertexModel* ModelManager::load(MODEL_TYPE type)
 {
-	Model* model;
+	VertexModel* vertexModel = new VertexModel;
 	switch (type)
 	{
 		case MODEL_TYPE_BUNNY:
-		model = LoadModelPlus("models/bunnyplus.obj");
+		vertexModel->loadModel("models/bunnyplus.obj");
 			break;
 		case MODEL_TYPE_SPHERE:
-		model = LoadModelPlus("models/sphere.obj");
+		vertexModel->loadModel("models/sphere.obj");
 			break;
 		default:
 			throw std::logic_error("load: Model not loaded");
 	}
 
-	VertexModel* vertexModel = new VertexModel(model);
 	_models.insert(std::pair<MODEL_TYPE, VertexModel*>(type, vertexModel));
 	return vertexModel;
 }
@@ -85,7 +105,7 @@ Bunny::Bunny()
 void Bunny::draw(GLuint shaderProgram)
 {
 	loadMTWMatrixToGPU(shaderProgram);
-	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
+	_model->drawModel(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }
 
 Sphere::Sphere()
@@ -100,5 +120,5 @@ Sphere::Sphere()
 void Sphere::draw(GLuint shaderProgram)
 {
 	loadMTWMatrixToGPU(shaderProgram);
-	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
+	_model->drawModel(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }

@@ -78,7 +78,8 @@ void ProgramGraphics::loadModels()
 	_worldObjects.push_back(bunny);
 	_worldObjects.push_back(sphere);
 
-	Terrain* terrain = Terrain::generate("models/fft-terrain.tga");
+	_terrainGenerator = new TerrainGenerator;
+	Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
 	_worldObjects.push_back(terrain);	
 
 	glm::mat4 MTW = glm::mat4();

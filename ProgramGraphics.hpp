@@ -9,6 +9,7 @@ class Camera;
 class WorldObject;
 class LightSourceLoader;
 class Physics;
+class TerrainGenerator;
 
 class ProgramGraphics : public jwgl::GraphicsHandler
 {
@@ -23,6 +24,7 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		ShaderManager* _shaders;
 		Camera* _camera;
 		LightSourceLoader* _lightSources;
+		TerrainGenerator* _terrainGenerator;
 		Physics* _physics;
 		std::vector<WorldObject*> _worldObjects;
 
