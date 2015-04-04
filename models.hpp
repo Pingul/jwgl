@@ -10,6 +10,7 @@
 typedef enum
 {
 	MODEL_TYPE_BUNNY,
+	MODEL_TYPE_SPHERE,
 } MODEL_TYPE;
 
 // At the moment only using this as a wrapper class for loadobj.hpp typedef.
@@ -47,16 +48,22 @@ class ModelManager
 
 class WorldObject
 {
+	friend class Physics;
+
 	public:
 		WorldObject() = default;
 		virtual ~WorldObject() = default;
 
 		virtual void draw(GLuint shaderProgram) = 0;
-		virtual void move(glm::vec3 to) { _location = to; };
+		virtual void move(glm::vec3 to) { _location = to; }
+		virtual void accelerate(glm::vec3 to) { _velocity = to; }
 		virtual glm::vec3 at() { return _location; }
+		virtual glm::vec3 velocity() { return _velocity; }
+		virtual bool isAffectedByGravity() { return true; }
 
 	protected:
 		glm::vec3 _location;
+		glm::vec3 _velocity;
 		VertexModel* _model;
 
 		virtual void loadMTWMatrixToGPU(GLuint shaderProgram);
@@ -67,6 +74,15 @@ class Bunny : public WorldObject
 	public:
 		Bunny();
 		~Bunny() = default;
+
+		virtual void draw(GLuint shaderProgram);
+};
+
+class Sphere : public WorldObject
+{
+	public:
+		Sphere();
+		~Sphere() = default;
 
 		virtual void draw(GLuint shaderProgram);
 };

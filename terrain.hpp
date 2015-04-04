@@ -7,12 +7,11 @@
 
 class Terrain : public WorldObject
 {
-	friend class TerrainGenerator;
-
 	public:
 		Terrain() = default;
 		~Terrain();
 
+		virtual bool isAffectedByGravity() { return false; }
 		virtual void draw(GLuint shaderProgram);
 		float heightAt(float x, float y);
 

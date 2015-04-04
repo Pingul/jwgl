@@ -43,7 +43,8 @@ namespace jwgl
 
 		while (!glfwWindowShouldClose(_window))
 		{
-			_graphicsHandler->drawFrame(0);
+			float t = glfwGetTime();
+			_graphicsHandler->drawFrame(t);
 
 			glfwSwapBuffers(_window);
 			glfwPollEvents();

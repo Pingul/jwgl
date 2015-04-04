@@ -8,6 +8,7 @@ class ShaderManager;
 class Camera;
 class WorldObject;
 class LightSourceLoader;
+class Physics;
 
 class ProgramGraphics : public jwgl::GraphicsHandler
 {
@@ -22,6 +23,7 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		ShaderManager* _shaders;
 		Camera* _camera;
 		LightSourceLoader* _lightSources;
+		Physics* _physics;
 		std::vector<WorldObject*> _worldObjects;
 
 		void setupOpenGL();
@@ -29,6 +31,7 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		void loadModels();
 		void loadLightSources();
 		void setupCamera();
+		void setupPhysics();
 		void handleKeys();
 		void handleMouseMovement();
 };

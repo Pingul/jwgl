@@ -35,6 +35,9 @@ VertexModel* ModelManager::load(MODEL_TYPE type)
 		case MODEL_TYPE_BUNNY:
 		model = LoadModelPlus("models/bunnyplus.obj");
 			break;
+		case MODEL_TYPE_SPHERE:
+		model = LoadModelPlus("models/sphere.obj");
+			break;
 		default:
 			throw std::logic_error("load: Model not loaded");
 	}
@@ -80,6 +83,21 @@ Bunny::Bunny()
 }
 
 void Bunny::draw(GLuint shaderProgram)
+{
+	loadMTWMatrixToGPU(shaderProgram);
+	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
+}
+
+Sphere::Sphere()
+{
+	ModelManager* models = ModelManager::shared();
+	if (!models->isLoaded(MODEL_TYPE_SPHERE))
+		_model = models->load(MODEL_TYPE_SPHERE);
+	else
+		_model = models->getReference(MODEL_TYPE_SPHERE);
+}
+
+void Sphere::draw(GLuint shaderProgram)
 {
 	loadMTWMatrixToGPU(shaderProgram);
 	_model->draw(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");

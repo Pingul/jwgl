@@ -13,6 +13,7 @@
 #include "camera.hpp"
 #include "lighting.hpp"
 #include "terrain.hpp"
+#include "physics.hpp"
 
 #define NEAR 1.0
 #define FAR 300.0
@@ -30,6 +31,7 @@ void ProgramGraphics::init()
 	loadLightSources();
 	loadModels();
 	setupCamera();
+	setupPhysics();
 }
 
 void ProgramGraphics::setupOpenGL()
@@ -69,18 +71,12 @@ void ProgramGraphics::loadLightSources()
 
 void ProgramGraphics::loadModels()
 {
-	Bunny* bunny1 = new Bunny;
-	Bunny* bunny2 = new Bunny;
-	Bunny* bunny3 = new Bunny;
-	Bunny* bunny4 = new Bunny;
-	bunny1->move(glm::vec3(20.0, 20.0, 20.0));
-	bunny2->move(glm::vec3(-1.0, 0.0, 0.0));
-	bunny3->move(glm::vec3(0.0, 1.0, 0.0));
-	bunny4->move(glm::vec3(0.0, -1.0, 0.0));
-	_worldObjects.push_back(bunny1);
-	_worldObjects.push_back(bunny2);
-	_worldObjects.push_back(bunny3);
-	_worldObjects.push_back(bunny4);
+	Bunny* bunny = new Bunny;
+	Sphere* sphere = new Sphere;
+	bunny->move(glm::vec3(20.0, 20.0, 20.0));
+	sphere->move(glm::vec3(30.0, 20.0, 30.0));
+	_worldObjects.push_back(bunny);
+	_worldObjects.push_back(sphere);
 
 	Terrain* terrain = Terrain::generate("models/fft-terrain.tga");
 	_worldObjects.push_back(terrain);	
@@ -103,12 +99,19 @@ void ProgramGraphics::setupCamera()
 	_camera = new Camera(location, lookingAt, upDirection);
 }
 
+void ProgramGraphics::setupPhysics()
+{
+	_physics = new Physics;
+	_physics->registerObjects(&_worldObjects);
+}
+
 void ProgramGraphics::drawFrame(float t)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	handleKeys();
 	handleMouseMovement();
+	_physics->generateNextPosition(t);
 
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
