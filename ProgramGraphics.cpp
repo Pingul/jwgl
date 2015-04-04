@@ -56,10 +56,12 @@ void ProgramGraphics::loadShaders()
 void ProgramGraphics::loadLightSources()
 {
 	_lightSources = new LightSourceLoader();
-	LightSource* light1 = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 5.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
-	LightSource* light2 = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -5.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	LightSource* light1 = new LightSource(glm::vec3(1.0, 0.0, 0.0), glm::vec3(20.0, 20.0, 20.0), 50.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	LightSource* light2 = new LightSource(glm::vec3(0.0, 1.0, 0.0), glm::vec3(20.0, 20.0, 20.0), 150.0, LIGHT_SOURCE_DIRECTION_TYPE_POSITIONAL);
+	// LightSource* light3 = new LightSource(glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.1, -0.8, 0.1), 2.0, LIGHT_SOURCE_DIRECTION_TYPE_DIRECTIONAL);
 	_lightSources->addLightSource(light1);
 	_lightSources->addLightSource(light2);
+	// _lightSources->addLightSource(light3);
 	_lightSources->load(_shaders->get()->ID());
 
 	printError("upload light sources");
@@ -71,7 +73,7 @@ void ProgramGraphics::loadModels()
 	Bunny* bunny2 = new Bunny;
 	Bunny* bunny3 = new Bunny;
 	Bunny* bunny4 = new Bunny;
-	bunny1->move(glm::vec3(1.0, 0.0, 0.0));
+	bunny1->move(glm::vec3(20.0, 20.0, 20.0));
 	bunny2->move(glm::vec3(-1.0, 0.0, 0.0));
 	bunny3->move(glm::vec3(0.0, 1.0, 0.0));
 	bunny4->move(glm::vec3(0.0, -1.0, 0.0));
@@ -95,7 +97,7 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 location(0, 0, 15);
+	glm::vec3 location(50, 20, 50);
 	glm::vec3 lookingAt(0, 0, 0);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
