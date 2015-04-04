@@ -1,8 +1,8 @@
 #version 150
 
-const int LIGHT_SOURCES = 2;
+const int LIGHT_SOURCES = 3;
 
-uniform vec3 lightSourceDirectionPositions[LIGHT_SOURCES];
+uniform vec3 lightSourceDirectionOrPosition[LIGHT_SOURCES];
 uniform vec3 lightSourceColor[LIGHT_SOURCES];
 uniform float specularExponent[LIGHT_SOURCES];
 uniform bool isDirectional[LIGHT_SOURCES];
@@ -21,7 +21,7 @@ void main(void)
 {
 	vec3 normal_n = normalize(normal);
 
-	const float Ka = 0.4f;
+	const float Ka = 0.3f;
 	vec4 textureColor = Ka*texture(TEXTURE_UNIT_0, textureCoordinates);
 
 	vec3 specularLight = vec3(0.0f, 0.0f, 0.0f);
@@ -32,31 +32,23 @@ void main(void)
 
 	for (int i = 0; i < LIGHT_SOURCES; i++)
 	{	
+		vec3 rotatedLightSource;
 		if (isDirectional[i])
-		{
-			vec3 rotatedLightSource = mat3(WTV)*lightSourceDirectionPositions[i];
-
-			float cosineIncomingAngle = dot(normal_n, rotatedLightSource);
-			diffuseLight += Kd*max(0, cosineIncomingAngle)*lightSourceColor[i];
-
-			vec3 reflectedDirection = normalize(reflect(-rotatedLightSource, normal_n));
-			vec3 viewDirection = -normalize(surface);
-			specularLight += Ks*pow(max(0, dot(reflectedDirection, viewDirection)), specularExponent[i])*lightSourceColor[i];
-		}
+			rotatedLightSource = mat3(WTV)*lightSourceDirectionOrPosition[i];
 		else
-		{
-			vec3 rotatedLightSource = vec3(WTV*vec4(lightSourceDirectionPositions[i], 1.0));
-			vec3 light = surface - rotatedLightSource;
-			vec3 lightDirection = normalize(light);
+			rotatedLightSource = vec3(WTV*vec4(lightSourceDirectionOrPosition[i], 1.0));
 
-			float cosineIncomingAngle = dot(normal_n, -lightDirection);
-			diffuseLight += Kd/pow(length(light), 0.25)*max(0, cosineIncomingAngle)*lightSourceColor[i];
+		vec3 light = surface - rotatedLightSource;
+		vec3 lightDirection = normalize(light);
 
-			vec3 reflectedDirection = normalize(reflect(lightDirection, normal_n));
-			vec3 viewDirection = -normalize(surface);
-			specularLight += Ks/pow(length(light), 0.25)*pow(max(0, dot(reflectedDirection, viewDirection)), specularExponent[i])*lightSourceColor[i];			
-		}
+		float cosineIncomingAngle = dot(normal_n, -lightDirection);
+		diffuseLight += Kd/*/pow(length(light), 0.25)*/*max(0, cosineIncomingAngle)*lightSourceColor[i];
+
+		vec3 reflectedDirection = normalize(reflect(lightDirection, normal_n));
+		vec3 viewDirection = -normalize(surface);
+		specularLight += Ks/*/pow(length(light), 0.25)*/*pow(max(0, dot(reflectedDirection, viewDirection)), specularExponent[i])*lightSourceColor[i];			
 	}
 
 	outColor = textureColor + vec4(specularLight + diffuseLight, 1.0f);
+	// outColor = vec4(isDirectional[0]);
 }
