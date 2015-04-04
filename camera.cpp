@@ -3,6 +3,8 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define LOOK_VEC_THRESHHOLD 0.9
+
 int sign(int value)
 {
 	if (value < 0)
@@ -21,10 +23,17 @@ void Camera::reorient(int newX, int newY)
 	int deltaX = sign(newX - x);
 	int deltaY = sign(newY - y);
 
-	glm::vec3 lookVec = _lookingAt - _location;
+	glm::vec3 lookVec = glm::normalize(_lookingAt - _location);
 
 	glm::vec3 perpendicular = glm::cross(lookVec, _upDirection);
 	glm::mat3 parallelRotation = glm::mat3(glm::rotate(-step*deltaX, _upDirection));
+	
+	// Looking direction and up direction cannot be the same
+	if (glm::dot(lookVec, _upDirection) > LOOK_VEC_THRESHHOLD)
+		deltaY = deltaY > 0 ? deltaY : 0;
+	else if (glm::dot(lookVec, _upDirection) < -LOOK_VEC_THRESHHOLD)
+		deltaY = deltaY < 0 ? deltaY : 0;
+
 	glm::mat3 perpendicularRotation = glm::mat3(glm::rotate(-step*deltaY, perpendicular));
 
 	_lookingAt = parallelRotation*perpendicularRotation*lookVec + _location;
@@ -33,12 +42,20 @@ void Camera::reorient(int newX, int newY)
 	y = newY;
 }
 
+bool Camera::lookVecTooCloseToUpDirection(glm::vec3 lookVec)
+{
+	glm::vec3 nLookVec = glm::normalize(lookVec);
+	float dotProduct = glm::dot(nLookVec, _upDirection);
+	return dotProduct > 0.9 || dotProduct < -0.9;
+}
+
 void Camera::takeStep(glm::vec3 directionRelativeToCamera)
 {
 	static const float stepLength = 0.2f;
 
 	glm::vec3 forward = _location - _lookingAt;
-	forward = forward - glm::dot(forward, _upDirection); // Limit movement to a plane
+	forward = forward - glm::dot(forward, _upDirection)*_upDirection; // Limit movement to a plane
+
 	glm::vec3 perpendicular = glm::cross(forward, _upDirection);
 
 	glm::vec3 sideTranslation = -stepLength*directionRelativeToCamera.x*glm::normalize(perpendicular);

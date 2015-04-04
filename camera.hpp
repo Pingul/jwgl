@@ -18,6 +18,8 @@ class Camera
 		glm::vec3 _location;
 		glm::vec3 _lookingAt;
 		glm::vec3 _upDirection;
+
+		bool lookVecTooCloseToUpDirection(glm::vec3 lookVec);
 };
 
 #endif
