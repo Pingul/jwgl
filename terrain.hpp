@@ -8,8 +8,7 @@
 class Terrain : public WorldObject
 {
 	public:
-		Terrain(VertexModel* model, TextureData textureData) :
-			_textureData(textureData) { _model = model; }
+		Terrain(VertexModel* model, TextureData textureData);
 		~Terrain();
 
 		virtual bool isAffectedByGravity() { return false; }
@@ -17,6 +16,8 @@ class Terrain : public WorldObject
 		float heightAt(float x, float y);
 
 	private:
+		int _width;
+		int _depth;
 		TextureData _textureData;
 };
 
@@ -46,6 +47,7 @@ class TerrainGenerator
 		void calculateIndices();
 		void calculateNormalVectors();
 		void generateModel();
+		void releaseMemory();
 };
 
 #endif

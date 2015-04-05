@@ -26,6 +26,8 @@ Terrain* TerrainGenerator::generateTerrain(const char* filePath)
 	calculateNormalVectors();
 	generateModel();
 	Terrain* terrain = new Terrain(_model, _textureData);
+	releaseMemory();
+
 	return terrain;
 }
 
@@ -129,6 +131,25 @@ void TerrainGenerator::generateModel()
 	VertexModel* vertexModel = new VertexModel;
 	vertexModel->loadModel(tModel);
 	_model = vertexModel;
+}
+
+void TerrainGenerator::releaseMemory()
+{
+	_vertexCount = 0;
+	_triangleCount = 0;
+	_vertexArray = nullptr;
+	_normalArray = nullptr;
+	_texCoordArray = nullptr;
+	_indexArray = nullptr;
+	_model = nullptr;
+	free(_textureData.imageData);
+}
+
+Terrain::Terrain(VertexModel* model, TextureData textureData)
+{
+	_model = model;
+	_width = textureData.width;
+	_depth = textureData.height;
 }
 
 
