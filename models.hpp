@@ -17,11 +17,10 @@ typedef enum
 class VertexModel
 {
 	public:
-		VertexModel() = default;
+		VertexModel(const char* filePath);
+		VertexModel(Model* model); // In cases where the model is already create (e.g. terrain)
 		~VertexModel() { free(_tModel); }
 
-		void loadModel(const char* filePath);
-		void loadModel(Model* model); // In cases where the model is already create (e.g. terrain)
 		void drawModel(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture);
 		GLfloat* vertexArray() { return _vertexArray; }
 		GLfloat* normalArray() { return _normalArray; }
@@ -35,6 +34,8 @@ class VertexModel
 		GLuint* _indexArray;
 
 		Model* _tModel; // Avoid using, as we're trying to wrap its functionality
+
+		void extractModelData();
 
 };
 

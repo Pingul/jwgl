@@ -7,24 +7,24 @@
 
 #include "models.hpp"
 
-void VertexModel::loadModel(const char* filePath)
+void VertexModel::extractModelData()
 {
-	_tModel = LoadModelPlus(filePath);
-
 	_vertexArray = _tModel->vertexArray;
 	_normalArray = _tModel->normalArray;
 	_texCoordArray = _tModel->texCoordArray;
-	_indexArray = _tModel->indexArray;
+	_indexArray = _tModel->indexArray;	
 }
 
-void VertexModel::loadModel(Model* model)
+VertexModel::VertexModel(const char* filePath)
+{
+	_tModel = LoadModelPlus(filePath);
+	extractModelData();
+}
+
+VertexModel::VertexModel(Model* model)
 {
 	_tModel = model;
-
-	_vertexArray = _tModel->vertexArray;
-	_normalArray = _tModel->normalArray;
-	_texCoordArray = _tModel->texCoordArray;
-	_indexArray = _tModel->indexArray;
+	extractModelData();
 }
 
 void VertexModel::drawModel(GLuint shaderProgram, const char* inPosition, const char* inNormal, const char* inTexture)
@@ -50,14 +50,14 @@ ModelManager::~ModelManager()
 
 VertexModel* ModelManager::load(MODEL_TYPE type)
 {
-	VertexModel* vertexModel = new VertexModel;
+	VertexModel* vertexModel;
 	switch (type)
 	{
 		case MODEL_TYPE_BUNNY:
-		vertexModel->loadModel("models/bunnyplus.obj");
+		vertexModel = new VertexModel("models/bunnyplus.obj");
 			break;
 		case MODEL_TYPE_SPHERE:
-		vertexModel->loadModel("models/sphere.obj");
+		vertexModel = new VertexModel("models/sphere.obj");
 			break;
 		default:
 			throw std::logic_error("load: Model not loaded");

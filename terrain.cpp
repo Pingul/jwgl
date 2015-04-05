@@ -67,13 +67,13 @@ void TerrainGenerator::calculateIndices()
 		for (int z = 0; z < _textureData.height - 1; ++z)
 		{
 			// Triangle 1
-			_indexArray[(x + z * (_textureData.width-1))*6 + 0] = x + z*_textureData.width;
-			_indexArray[(x + z * (_textureData.width-1))*6 + 1] = x + (z + 1)*_textureData.width;
-			_indexArray[(x + z * (_textureData.width-1))*6 + 2] = x + 1 + z*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 0] = x + z*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 1] = x + (z + 1)*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 2] = x + 1 + z*_textureData.width;
 			// Triangle 2
-			_indexArray[(x + z * (_textureData.width-1))*6 + 3] = x + 1 + z*_textureData.width;
-			_indexArray[(x + z * (_textureData.width-1))*6 + 4] = x + (z + 1)*_textureData.width;
-			_indexArray[(x + z * (_textureData.width-1))*6 + 5] = x + 1 + (z + 1)*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 3] = x + 1 + z*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 4] = x + (z + 1)*_textureData.width;
+			_indexArray[(x + z*(_textureData.width-1))*6 + 5] = x + 1 + (z + 1)*_textureData.width;
 		}
 	}
 }
@@ -128,8 +128,7 @@ void TerrainGenerator::generateModel()
 		_vertexCount,
 		3*_triangleCount);
 
-	VertexModel* vertexModel = new VertexModel;
-	vertexModel->loadModel(tModel);
+	VertexModel* vertexModel = new VertexModel(tModel);
 	_model = vertexModel;
 }
 
