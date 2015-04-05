@@ -13,7 +13,7 @@ class Physics
 		~Physics() = default;
 
 		void registerObjects(std::vector<WorldObject*>* objects);
-		void generateNextPosition(float t);
+		void calculatePositions(float t);
 	
 	private:
 		float _lastTime;

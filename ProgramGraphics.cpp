@@ -112,7 +112,7 @@ void ProgramGraphics::drawFrame(float t)
 
 	handleKeys();
 	handleMouseMovement();
-	_physics->generateNextPosition(t);
+	_physics->calculatePositions(t);
 
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));

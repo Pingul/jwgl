@@ -12,7 +12,7 @@ void Physics::registerObjects(std::vector<WorldObject*>* objects)
 	_worldObjects = objects;	
 }
 
-void Physics::generateNextPosition(float t)
+void Physics::calculatePositions(float t)
 {
 	float deltaT = t - _lastTime;
 	for (WorldObject* &obj : *_worldObjects)
