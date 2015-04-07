@@ -18,8 +18,9 @@ class Physics
 	private:
 		float _lastTime;
 		glm::vec3 _gravity;
-		std::vector<WorldObject*>* _worldObjects;	
+		std::vector<WorldObject*>* _worldObjects;
 
+		void findCollisions();
 };
 
 #endif

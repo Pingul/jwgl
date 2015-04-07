@@ -36,7 +36,7 @@ void ProgramGraphics::init()
 
 void ProgramGraphics::setupOpenGL()
 {
-	glClearColor(0, 0, 0, 0);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
 	glEnable(GL_DEPTH_TEST);
 
 	printError("init opengl");
@@ -69,13 +69,14 @@ void ProgramGraphics::loadLightSources()
 	printError("upload light sources");
 }
 
+
 void ProgramGraphics::loadModels()
 {
-	Bunny* bunny = new Bunny;
+	// Bunny* bunny = new Bunny;
 	Sphere* sphere = new Sphere;
-	bunny->move(glm::vec3(20.0, 20.0, 20.0));
-	sphere->move(glm::vec3(30.0, 20.0, 30.0));
-	_worldObjects.push_back(bunny);
+	sphere->move(glm::vec3(1.0, 3.0, 1.0));
+
+	// _worldObjects.push_back(bunny);
 	_worldObjects.push_back(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
@@ -94,7 +95,7 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 location(50, 20, 50);
+	glm::vec3 location(5, 3, 5);
 	glm::vec3 lookingAt(0, 0, 0);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
@@ -106,13 +107,19 @@ void ProgramGraphics::setupPhysics()
 	_physics->registerObjects(&_worldObjects);
 }
 
+bool calculatePositions = true;
+
 void ProgramGraphics::drawFrame(float t)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	handleKeys();
 	handleMouseMovement();
-	_physics->calculatePositions(t);
+	if (calculatePositions)
+	{
+		// _physics->calculatePositions(t);
+		calculatePositions = false;
+	}
 
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
@@ -161,6 +168,39 @@ void ProgramGraphics::handleKeys()
 	{
 		stepTaken = 1;
 		step.y = -1;
+	}
+
+	Sphere* sphere = (Sphere*)_worldObjects.at(0);
+	float sphereStep = 0.1;
+	if (glfwGetKey(_window, GLFW_KEY_L))
+	{
+		sphere->move(sphere->at() + glm::vec3(0, -sphereStep, 0));
+		calculatePositions = true;
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_O))
+	{
+		sphere->move(sphere->at() + glm::vec3(0, sphereStep, 0));
+		calculatePositions = true;
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_UP))
+	{
+		sphere->move(sphere->at() + glm::vec3(0, 0, -sphereStep));
+		calculatePositions = true;
+	} 
+	else if (glfwGetKey(_window, GLFW_KEY_DOWN))
+	{
+		sphere->move(sphere->at() + glm::vec3(0, 0, sphereStep));
+		calculatePositions = true;
+	} 
+	else if (glfwGetKey(_window, GLFW_KEY_LEFT))
+	{
+		sphere->move(sphere->at() + glm::vec3(-sphereStep, 0, 0));
+		calculatePositions = true;
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_RIGHT))
+	{
+		sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
+		calculatePositions = true;
 	}
 
 	if (stepTaken)
