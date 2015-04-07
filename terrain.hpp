@@ -13,12 +13,14 @@ class Terrain : public WorldObject
 
 		virtual bool isAffectedByGravity() { return false; }
 		virtual void draw(GLuint shaderProgram);
+
 		float heightAt(float x, float y);
+		int width() { return _width; }
+		int depth() { return _depth; }
 
 	private:
 		int _width;
 		int _depth;
-		TextureData _textureData;
 };
 
 class TerrainGenerator

@@ -51,7 +51,7 @@ void TerrainGenerator::calculatVertices()
 			unsigned int index = x + z * _textureData.width;
 
 			_vertexArray[index*3 + 0] = x/1.0;
-			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/20.0;
+			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/256.0;
 			_vertexArray[index*3 + 2] = z/1.0;
 
 			_texCoordArray[index*2 + 0] = x;
@@ -106,7 +106,7 @@ void TerrainGenerator::calculateNormalVectors()
 
 				glm::vec3 firstVector = vecFromArrayAndIndex(_vertexArray, index[i]) - origin;
 				glm::vec3 secondVector = vecFromArrayAndIndex(_vertexArray, index[i + 1]) - origin;
-				normalVector = glm::cross(firstVector, secondVector);
+				normalVector += glm::cross(firstVector, secondVector);
 			}
 
 			normalVector = glm::normalize(normalVector);
@@ -165,7 +165,7 @@ float Terrain::heightAt(float x, float z)
 	float decimalPartX = x - (float)intPartX;
 	float decimalPartZ = z - (float)intPartZ;
 
-	int index = intPartX + intPartZ*_textureData.width;
+	int index = intPartX + intPartZ*_width;
 
 	glm::vec3 vertexLocation(_model->vertexArray()[index*3], _model->vertexArray()[index*3 + 1], _model->vertexArray()[index*3 + 2]);
 	glm::vec3 normalVector(_model->normalArray()[index*3], _model->normalArray()[index*3 + 1], _model->normalArray()[index*3 + 2]);
