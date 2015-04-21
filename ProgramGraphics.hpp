@@ -10,6 +10,7 @@ class WorldObject;
 class LightSourceLoader;
 class Physics;
 class TerrainGenerator;
+class WorldObjectManager;
 
 class ProgramGraphics : public jwgl::GraphicsHandler
 {
@@ -25,8 +26,8 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		Camera* _camera;
 		LightSourceLoader* _lightSources;
 		TerrainGenerator* _terrainGenerator;
+		WorldObjectManager* _objectManager;
 		Physics* _physics;
-		std::vector<WorldObject*> _worldObjects;
 
 		void setupOpenGL();
 		void loadShaders();

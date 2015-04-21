@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "models.hpp"
+#include "terrain.hpp"
 
 void VertexModel::extractModelData()
 {
@@ -88,7 +89,31 @@ void WorldObject::loadMTWMatrixToGPU(GLuint shaderProgram)
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));	
 }
 
+void WorldObjectManager::registerWorldObject(WorldObject* worldObject)
+{
+	Terrain* p = dynamic_cast<Terrain*>(worldObject);
+	if (p != nullptr)
+	{
+		_terrain.push_back(p);
+	} 
+	else
+	{
+		_objects.push_back(worldObject);
+	}
+}
 
+WorldObjectManager::~WorldObjectManager()
+{
+	for (auto &it : _objects)
+	{
+		delete it;
+	}
+
+	for (auto &it : _terrain)
+	{
+		delete it;
+	}
+}
 
 
 // ----- MODELS
@@ -110,6 +135,7 @@ void Bunny::draw(GLuint shaderProgram)
 
 Sphere::Sphere()
 {
+	_elasticity = 1.0;
 	ModelManager* models = ModelManager::shared();
 	if (!models->isLoaded(MODEL_TYPE_SPHERE))
 		_model = models->load(MODEL_TYPE_SPHERE);
@@ -119,6 +145,7 @@ Sphere::Sphere()
 
 void Sphere::draw(GLuint shaderProgram)
 {
-	loadMTWMatrixToGPU(shaderProgram);
+	glm::mat4 MTW = glm::translate(glm::mat4(1.0), glm::vec3(_location.x, _location.y - _radius, _location.z));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));	
 	_model->drawModel(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }

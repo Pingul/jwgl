@@ -2,10 +2,13 @@
 #define _MODELS_
 
 #include <map>
+#include <vector>
 #include <stdlib.h>
 #include <OpenGL/gl3.h>
 #include "loadobj.hpp"
 #include <glm/glm.hpp>
+
+class Terrain;
 
 typedef enum
 {
@@ -73,6 +76,10 @@ class WorldObject
 		virtual glm::vec3 velocity() { return _velocity; }
 		virtual bool isAffectedByGravity() { return true; }
 
+		// Collision detection data
+		virtual float radius() { return _radius; }
+		virtual float elasticity() { return _elasticity; }
+
 	protected:
 		WorldObject(VertexModel* model) :
 			_model(model) {}
@@ -80,6 +87,8 @@ class WorldObject
 		glm::vec3 _location;
 		glm::vec3 _velocity;
 		VertexModel* _model;
+		float _radius = 1.0;
+		float _elasticity = 1.0; // A value between 0 and 1
 
 		virtual void loadMTWMatrixToGPU(GLuint shaderProgram);
 };
@@ -100,6 +109,21 @@ class Sphere : public WorldObject
 		~Sphere() = default;
 
 		virtual void draw(GLuint shaderProgram);
+};
+
+class WorldObjectManager
+{
+	public:
+		WorldObjectManager() = default;
+		~WorldObjectManager();
+
+		void registerWorldObject(WorldObject* worldObject);
+		std::vector<Terrain*>* terrain() { return &_terrain; }
+		std::vector<WorldObject*>* objects() { return &_objects; }
+
+	private:
+		std::vector<Terrain*> _terrain;
+		std::vector<WorldObject*> _objects;
 };
 
 

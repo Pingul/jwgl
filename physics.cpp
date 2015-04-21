@@ -1,6 +1,5 @@
 #include "misc.hpp"
 #include "physics.hpp"
-#include "models.hpp"
 #include "terrain.hpp"
 
 #include <glm/glm.hpp>
@@ -10,57 +9,81 @@ Physics::Physics()
 	_gravity = glm::vec3(0, -1, 0);
 }
 
-void Physics::registerObjects(std::vector<WorldObject*>* objects)
+void Physics::registerObjectManager(WorldObjectManager* objects)
 {
-	_worldObjects = objects;	
+	_objectManager = objects;	
 }
 
 void Physics::calculatePositions(float t)
 {
 	float deltaT = t - _lastTime;
 	findCollisions();
-	// for (WorldObject* &obj : *_worldObjects)
-	// {
-	// 	if (obj->isAffectedByGravity())
-	// 		obj->accelerate(obj->velocity() + deltaT * _gravity);
+	for (WorldObject* &obj : *_objectManager->objects())
+	{
+		if (obj->isAffectedByGravity())
+			obj->accelerate(obj->velocity() + deltaT * _gravity);
 
-	// 	obj->move(obj->at() + deltaT*obj->velocity());
-	// }
+		obj->move(obj->at() + deltaT*obj->velocity());
+	}
 	_lastTime = t;
-}
-
-void print(glm::vec3 vec)
-{
-	std::cout << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}" << std::endl;
 }
 
 void Physics::findCollisions()
 {
-	WorldObject* sphere = _worldObjects->at(0);
-	Terrain* terrain = dynamic_cast<Terrain*>(_worldObjects->at(1));
-
-	int sphereRadius = 1;
+	Terrain* terrain = _objectManager->terrain()->at(0);
 
 	for (int x = 0; x < terrain->width() - 1; ++x)
 	{
 		for (int z = 0; z < terrain->depth() - 1; ++z)
 		{
-			int index[] = 
-			{
-				x + z*terrain->width(),
-				x + 1 + z*terrain->width(),
-				x + (z + 1)*terrain->width(),
-			};
+			// defines the first vertex
+			glm::vec3 origin = terrain->vertexAt(x, z);
+			glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
+			glm::vec3 edge2 = terrain->vertexAt(x + 1, z + 1) - origin;
+			glm::vec3 normal = glm::cross(edge1, edge2);//terrain->normalAt(x, z);
 
-			glm::vec3 vertexLocation(terrain->_model->vertexArray()[3*index[0]], terrain->_model->vertexArray()[3*index[0] + 1], terrain->_model->vertexArray()[3*index[0] + 2]);
-			glm::vec3 vertexNormal(terrain->_model->normalArray()[3*index[0]], terrain->_model->normalArray()[3*index[0] + 1], terrain->_model->normalArray()[3*index[0] + 2]);
-
-			float val = glm::dot(vertexLocation, vertexNormal) - glm::dot(sphere->at(), vertexNormal);
-			if (sphereRadius > val && val > 0)
+			for (auto &sphere : *_objectManager->objects())
 			{
-				std::cout << val << "/";
+				float val = glm::dot(normal, sphere->at() - origin);
+				if (sphere->radius() > val && val > -sphere->radius())
+				{
+					// The object penetrates the plane defined by the vertex. Is it in fact inside of the vertex?
+					glm::vec3 cutPoint = sphere->at() - val*normal;
+					glm::vec3 s = cutPoint - origin;
+
+					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
+					float param1 = (s.z - param2*edge2.z)/edge1.z;
+					if (param1 + param2 < 1 && param1 > 0 && param2 > 0)
+					{
+						// Move out and change velocity accordingly
+						sphere->move(cutPoint + sphere->radius()*normal);
+						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
+						// std::cout << "finding" << std::endl;
+						return;
+					}
+				}
+
+				// Same thing, next vertex
+				edge1 = edge2; // want right system
+				edge2 = terrain->vertexAt(x + 1, z) - origin;
+				normal = glm::cross(edge1, edge2);
+
+				val = val = glm::dot(normal, sphere->at() - origin);
+				if (sphere->radius() > val && val > -sphere->radius())
+				{
+					glm::vec3 cutPoint = sphere->at() - val*normal;
+					glm::vec3 s = cutPoint - origin;
+
+					float param2 = (s.y*edge1.z - s.z*edge1.y)/(edge2.y*edge1.z - edge2.z*edge1.y);
+					float param1 = (s.z - param2*edge2.z)/edge1.z;
+					if (param1 + param2 < 1 && param1 > 0 && param2 > 0)
+					{
+						sphere->move(cutPoint + sphere->radius()*normal);
+						sphere->accelerate(glm::reflect(sphere->velocity(), normal));
+						return;
+					}
+				}
 			}
 		}
 	}
-	std::cout << std::endl;
 }

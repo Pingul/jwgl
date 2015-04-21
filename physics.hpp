@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-
-class WorldObject;
+#include "models.hpp"
 
 class Physics
 {
@@ -12,13 +11,13 @@ class Physics
 		Physics();
 		~Physics() = default;
 
-		void registerObjects(std::vector<WorldObject*>* objects);
+		void registerObjectManager(WorldObjectManager* objects);
 		void calculatePositions(float t);
 	
 	private:
 		float _lastTime;
 		glm::vec3 _gravity;
-		std::vector<WorldObject*>* _worldObjects;
+		WorldObjectManager* _objectManager;
 
 		void findCollisions();
 };

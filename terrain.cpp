@@ -1,9 +1,22 @@
 #include "terrain.hpp"
 
-glm::vec3 TerrainGenerator::vecFromArrayAndIndex(GLfloat* array, int index)
+glm::vec3 vecFromArrayAndIndex(GLfloat* array, int index)
 {
-	return glm::vec3(array[index*3], array[index*3 + 1], array[index*3 + 2]);
+	return glm::vec3(array[3*index], array[3*index + 1], array[3*index + 2]);
 }
+
+glm::vec3 Terrain::normalAt(int x, int z)
+{
+	// No check for out of bounds to avoid too much overhead cost
+	return vecFromArrayAndIndex(_model->normalArray(), x + z*_width);
+}
+
+glm::vec3 Terrain::vertexAt(int x, int z)
+{
+	// No check for out of bounds to avoid too much overhead cost
+	return vecFromArrayAndIndex(_model->vertexArray(), x + z*_width);
+}
+
 
 char TerrainGenerator::outOfBounds(int x, int z, int width, int height)
 {
@@ -51,7 +64,7 @@ void TerrainGenerator::calculatVertices()
 			unsigned int index = x + z * _textureData.width;
 
 			_vertexArray[index*3 + 0] = x/1.0;
-			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/256.0;
+			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/20.0;
 			_vertexArray[index*3 + 2] = z/1.0;
 
 			_texCoordArray[index*2 + 0] = x;

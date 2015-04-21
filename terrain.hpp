@@ -18,6 +18,9 @@ class Terrain : public WorldObject
 		int width() { return _width; }
 		int depth() { return _depth; }
 
+		glm::vec3 normalAt(int x, int z);
+		glm::vec3 vertexAt(int x, int z);
+
 	private:
 		int _width;
 		int _depth;
@@ -41,7 +44,6 @@ class TerrainGenerator
 		TextureData _textureData;
 		VertexModel* _model;
 
-		glm::vec3 vecFromArrayAndIndex(GLfloat* array, int index);
 		char outOfBounds(int x, int z, int width, int height);
 		int textureIndex(int x, int z, int offsetX, int offsetZ);
 		void loadTextureData(const char* filePath);

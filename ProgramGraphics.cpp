@@ -72,16 +72,19 @@ void ProgramGraphics::loadLightSources()
 
 void ProgramGraphics::loadModels()
 {
+	_objectManager = new WorldObjectManager();
 	// Bunny* bunny = new Bunny;
-	Sphere* sphere = new Sphere;
-	sphere->move(glm::vec3(1.0, 3.0, 1.0));
-
-	// _worldObjects.push_back(bunny);
-	_worldObjects.push_back(sphere);
+	// Sphere* sphere = new Sphere;
+	// sphere->move(glm::vec3(20.0, 10.0, 20.0));
+	// _objectManager->registerWorldObject(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
 	Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
-	_worldObjects.push_back(terrain);	
+	_objectManager->registerWorldObject(terrain);
+
+	Sphere* sphere = new Sphere;
+	sphere->move(glm::vec3(150.0, 10.0, 150.0));
+	_objectManager->registerWorldObject(sphere);
 
 	glm::mat4 MTW = glm::mat4();
 	glm::mat4 WTV = glm::mat4();
@@ -95,8 +98,8 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 location(5, 3, 5);
-	glm::vec3 lookingAt(0, 0, 0);
+	glm::vec3 location(90, 3, 90);
+	glm::vec3 lookingAt = _objectManager->objects()->at(0)->at();
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -104,7 +107,7 @@ void ProgramGraphics::setupCamera()
 void ProgramGraphics::setupPhysics()
 {
 	_physics = new Physics;
-	_physics->registerObjects(&_worldObjects);
+	_physics->registerObjectManager(_objectManager);
 }
 
 bool calculatePositions = true;
@@ -115,16 +118,21 @@ void ProgramGraphics::drawFrame(float t)
 
 	handleKeys();
 	handleMouseMovement();
-	if (calculatePositions)
-	{
-		// _physics->calculatePositions(t);
+	// if (calculatePositions)
+	// {
+		_physics->calculatePositions(t);
 		calculatePositions = false;
-	}
+	// }
 
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
 
-	for (auto it = _worldObjects.begin(); it != _worldObjects.end(); ++it)
+	for (auto it = _objectManager->terrain()->begin(); it != _objectManager->terrain()->end(); ++it)
+	{
+		(*it)->draw(_shaders->get()->ID());	
+	}	
+
+	for (auto it = _objectManager->objects()->begin(); it != _objectManager->objects()->end(); ++it)
 	{
 		(*it)->draw(_shaders->get()->ID());	
 	}
@@ -170,7 +178,7 @@ void ProgramGraphics::handleKeys()
 		step.y = -1;
 	}
 
-	Sphere* sphere = (Sphere*)_worldObjects.at(0);
+	Sphere* sphere = (Sphere*)_objectManager->objects()->at(0);
 	float sphereStep = 0.1;
 	if (glfwGetKey(_window, GLFW_KEY_L))
 	{
@@ -226,9 +234,7 @@ void ProgramGraphics::handleMouseMovement()
  	delete _camera;
  	delete _shaders;
  	delete _lightSources;
-
- 	for (auto &it : _worldObjects)
- 	{
- 		delete it;
- 	}
+ 	delete _objectManager;
+ 	delete _physics;
+ 	delete _terrainGenerator;	
  }
