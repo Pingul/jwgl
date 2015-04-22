@@ -6,7 +6,7 @@
 
 Physics::Physics()
 {
-	_gravity = glm::vec3(0, -1, 0);
+	_gravity = glm::vec3(0, -9, 0);
 }
 
 void Physics::registerObjectManager(WorldObjectManager* objects)
@@ -40,7 +40,7 @@ void Physics::findCollisions()
 			glm::vec3 origin = terrain->vertexAt(x, z);
 			glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
 			glm::vec3 edge2 = terrain->vertexAt(x + 1, z + 1) - origin;
-			glm::vec3 normal = glm::cross(edge1, edge2);//terrain->normalAt(x, z);
+			glm::vec3 normal = glm::cross(edge1, edge2);
 
 			for (auto &sphere : *_objectManager->objects())
 			{
@@ -58,7 +58,7 @@ void Physics::findCollisions()
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
-						// std::cout << "finding" << std::endl;
+						// std::cout << "v: {" << sphere->velocity().x << ", " << sphere->velocity().y << "," << sphere->velocity().z << "}" << std::endl;
 						return;
 					}
 				}
@@ -74,12 +74,12 @@ void Physics::findCollisions()
 					glm::vec3 cutPoint = sphere->at() - val*normal;
 					glm::vec3 s = cutPoint - origin;
 
-					float param2 = (s.y*edge1.z - s.z*edge1.y)/(edge2.y*edge1.z - edge2.z*edge1.y);
+					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
 					if (param1 + param2 < 1 && param1 > 0 && param2 > 0)
 					{
 						sphere->move(cutPoint + sphere->radius()*normal);
-						sphere->accelerate(glm::reflect(sphere->velocity(), normal));
+						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
 						return;
 					}
 				}

@@ -135,7 +135,7 @@ void Bunny::draw(GLuint shaderProgram)
 
 Sphere::Sphere()
 {
-	_elasticity = 1.0;
+	_elasticity = 0.7;
 	ModelManager* models = ModelManager::shared();
 	if (!models->isLoaded(MODEL_TYPE_SPHERE))
 		_model = models->load(MODEL_TYPE_SPHERE);

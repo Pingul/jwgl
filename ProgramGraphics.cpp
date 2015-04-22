@@ -83,7 +83,7 @@ void ProgramGraphics::loadModels()
 	_objectManager->registerWorldObject(terrain);
 
 	Sphere* sphere = new Sphere;
-	sphere->move(glm::vec3(150.0, 10.0, 150.0));
+	sphere->move(glm::vec3(130.0, 10.0, 130.0));
 	_objectManager->registerWorldObject(sphere);
 
 	glm::mat4 MTW = glm::mat4();
@@ -98,8 +98,8 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 location(90, 3, 90);
 	glm::vec3 lookingAt = _objectManager->objects()->at(0)->at();
+	glm::vec3 location = lookingAt - glm::vec3(10, 5, 10);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
