@@ -36,6 +36,10 @@ void Physics::findCollisions()
 	{
 		for (int z = 0; z < terrain->depth() - 1; ++z)
 		{
+	// for (int x = 130; x < 132; ++x)
+	// {
+	// 	for (int z = 130; z < 132; ++z)
+	// 	{
 			// defines the first vertex
 			glm::vec3 origin = terrain->vertexAt(x, z);
 			glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
@@ -53,7 +57,8 @@ void Physics::findCollisions()
 
 					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
-					if (param1 + param2 < 1 && param1 > 0 && param2 > 0)
+					// std::cout << x << "." << z << " - " << "p1: " << param1 << " || " << param2 << std::endl;
+					if (param1 + param2 =< 1 && param1 >= 0 && param2 >= 0)
 					{
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
@@ -64,7 +69,7 @@ void Physics::findCollisions()
 				}
 
 				// Same thing, next vertex
-				edge1 = edge2; // want right system
+				edge1 = edge2; // we want right system
 				edge2 = terrain->vertexAt(x + 1, z) - origin;
 				normal = glm::cross(edge1, edge2);
 
@@ -76,7 +81,7 @@ void Physics::findCollisions()
 
 					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
-					if (param1 + param2 < 1 && param1 > 0 && param2 > 0)
+					if (param1 + param2 =< 1 && param1 >= 0 && param2 >= 0)
 					{
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
