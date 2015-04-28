@@ -33,12 +33,8 @@ void ProgramGraphics::init()
 	loadShaders();
 	loadLightSources();
 	loadModels();
-	std::cout << "camera" << std::endl;
 	setupCamera();
-	std::cout << "physics" << std::endl;
 	setupPhysics();
-
-	std::cout << "initialization complete" << std::endl;
 }
 
 void ProgramGraphics::setupOpenGL()
@@ -87,12 +83,12 @@ void ProgramGraphics::loadModels()
 
 	_terrainGenerator = new TerrainGenerator;
 	Terrain* terrain = _terrainGenerator->generateTerrain(16, 16);
-	std::cout << "generation complete" << std::endl;
+	// Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
 	_objectManager->registerWorldObject(terrain);
 
-	Sphere* sphere = new Sphere;
-	sphere->move(glm::vec3(100.0, 3, 100.0));
-	_objectManager->registerWorldObject(sphere);
+	// Sphere* sphere = new Sphere;
+	// sphere->move(glm::vec3(152.0, 20, 152.0));
+	// _objectManager->registerWorldObject(sphere);
 
 	glm::mat4 MTW = glm::mat4();
 	glm::mat4 WTV = glm::mat4();
@@ -101,7 +97,6 @@ void ProgramGraphics::loadModels()
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-	std::cout << "upload complete" << std::endl;
 	printError("upload data");
 }
 
@@ -193,7 +188,6 @@ void handleCameraMovement()
 		step.y = -1;
 	}
 
-
 	if (stepTaken)
 	{
 		_camera->takeStep(step);
@@ -206,37 +200,40 @@ void handleCameraMovement()
 
 void handleSphereObjectMovement()
 {
-	Sphere* sphere = (Sphere*)_objectManager->objects()->at(0);
-	float sphereStep = 0.1;
-	if (glfwGetKey(_window, GLFW_KEY_L))
+	if (!_objectManager->objects()->empty())
 	{
-		sphere->move(sphere->at() + glm::vec3(0, -sphereStep, 0));
-		calculatePositions = true;
-	}
-	else if (glfwGetKey(_window, GLFW_KEY_O))
-	{
-		sphere->move(sphere->at() + glm::vec3(0, sphereStep, 0));
-		calculatePositions = true;
-	}
-	else if (glfwGetKey(_window, GLFW_KEY_UP))
-	{
-		sphere->move(sphere->at() + glm::vec3(0, 0, -sphereStep));
-		calculatePositions = true;
-	} 
-	else if (glfwGetKey(_window, GLFW_KEY_DOWN))
-	{
-		sphere->move(sphere->at() + glm::vec3(0, 0, sphereStep));
-		calculatePositions = true;
-	} 
-	else if (glfwGetKey(_window, GLFW_KEY_LEFT))
-	{
-		sphere->move(sphere->at() + glm::vec3(-sphereStep, 0, 0));
-		calculatePositions = true;
-	}
-	else if (glfwGetKey(_window, GLFW_KEY_RIGHT))
-	{
-		sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
-		calculatePositions = true;
+		Sphere* sphere = dynamic_cast<Sphere*>(_objectManager->objects()->at(0));
+		float sphereStep = 0.1;
+		if (glfwGetKey(_window, GLFW_KEY_L))
+		{
+			sphere->move(sphere->at() + glm::vec3(0, -sphereStep, 0));
+			calculatePositions = true;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_O))
+		{
+			sphere->move(sphere->at() + glm::vec3(0, sphereStep, 0));
+			calculatePositions = true;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_UP))
+		{
+			sphere->move(sphere->at() + glm::vec3(0, 0, -sphereStep));
+			calculatePositions = true;
+		} 
+		else if (glfwGetKey(_window, GLFW_KEY_DOWN))
+		{
+			sphere->move(sphere->at() + glm::vec3(0, 0, sphereStep));
+			calculatePositions = true;
+		} 
+		else if (glfwGetKey(_window, GLFW_KEY_LEFT))
+		{
+			sphere->move(sphere->at() + glm::vec3(-sphereStep, 0, 0));
+			calculatePositions = true;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_RIGHT))
+		{
+			sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
+			calculatePositions = true;
+		}
 	}
 }
 
