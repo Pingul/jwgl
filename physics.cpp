@@ -58,7 +58,7 @@ void Physics::findCollisions()
 					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
 					// std::cout << x << "." << z << " - " << "p1: " << param1 << " || " << param2 << std::endl;
-					if (param1 + param2 =< 1 && param1 >= 0 && param2 >= 0)
+					if (param1 + param2 <= 1 && param1 >= 0 && param2 >= 0)
 					{
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
@@ -81,7 +81,7 @@ void Physics::findCollisions()
 
 					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
-					if (param1 + param2 =< 1 && param1 >= 0 && param2 >= 0)
+					if (param1 + param2 <= 1 && param1 >= 0 && param2 >= 0)
 					{
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
