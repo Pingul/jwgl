@@ -30,8 +30,12 @@ void ProgramGraphics::init()
 	loadShaders();
 	loadLightSources();
 	loadModels();
+	std::cout << "camera" << std::endl;
 	setupCamera();
+	std::cout << "physics" << std::endl;
 	setupPhysics();
+
+	std::cout << "initialization complete" << std::endl;
 }
 
 void ProgramGraphics::setupOpenGL()
@@ -79,11 +83,12 @@ void ProgramGraphics::loadModels()
 	// _objectManager->registerWorldObject(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
-	Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
+	Terrain* terrain = _terrainGenerator->generateTerrain(16, 16);
+	std::cout << "generation complete" << std::endl;
 	_objectManager->registerWorldObject(terrain);
 
 	Sphere* sphere = new Sphere;
-	sphere->move(glm::vec3(130.0, 10.0, 130.0));
+	sphere->move(glm::vec3(100.0, 3, 100.0));
 	_objectManager->registerWorldObject(sphere);
 
 	glm::mat4 MTW = glm::mat4();
@@ -93,13 +98,14 @@ void ProgramGraphics::loadModels()
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
+	std::cout << "upload complete" << std::endl;
 	printError("upload data");
 }
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 lookingAt = _objectManager->objects()->at(0)->at();
-	glm::vec3 location = lookingAt - glm::vec3(10, 5, 10);
+	glm::vec3 lookingAt = glm::vec3(0, 0, 0);//_objectManager->objects()->at(0)->at();
+	glm::vec3 location = lookingAt - glm::vec3(10, -2, 10);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }

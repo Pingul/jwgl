@@ -33,6 +33,7 @@ class TerrainGenerator
 		~TerrainGenerator() = default;
 
 		Terrain* generateTerrain(const char* filePath);
+		Terrain* generateTerrain(unsigned int width, unsigned int depth);
 
 	private:
 		int _vertexCount;
@@ -52,6 +53,12 @@ class TerrainGenerator
 		void calculateNormalVectors();
 		void generateModel();
 		void releaseMemory();
+		void createTextureData(GLubyte* heightMap, unsigned int width, unsigned int depth);
+		void initArrays();
+
+		GLubyte* generateHeightMapData(unsigned int width, unsigned int depth);
+		Terrain* generateTerrain();
+
 };
 
 #endif
