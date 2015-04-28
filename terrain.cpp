@@ -37,11 +37,8 @@ int TerrainGenerator::textureIndex(int x, int z, int offsetX, int offsetZ)
 
 Terrain* TerrainGenerator::generateTerrain(unsigned int width, unsigned int depth)
 {
-	std::cout << "Generating" << std::endl;
 	GLubyte* heightMap = generateHeightMapData(width, depth);
-	std::cout << "heightmap created" << std::endl;
 	createTextureData(heightMap, width, depth);
-	std::cout << "texture created" << std::endl;
 	return generateTerrain();
 }
 
@@ -59,12 +56,13 @@ GLubyte* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned in
 		for (int z = 0; z < depth; ++z)
 		{
 			int index = x + z*depth;
-			float distance = sqrt(x*x + z*z) + 1;
-			in[index][0] = ((float)(rand() % 10))/(distance*distance);
+			// float distance = 1 + sqrt(x*x + z*z);
+			double dice_roll = rand() % 1000; 
+			dice_roll = dice_roll/500.0 - 1;
+			in[index][0] = dice_roll;
 			in[index][1] = 0.0;
 		}
 	}
-	std::cout << "D: " << sizeof(in)/sizeof(in[0]) << std::endl;
 
 	p = fftw_plan_dft_2d(width, depth, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
 
@@ -76,10 +74,11 @@ GLubyte* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned in
 		for (int z = 0; z < depth; ++z)
 		{
 			int index = x + z*depth;
-			heightMap[index] = (GLubyte)out[index][0];
+			heightMap[index] = (GLubyte)in[index][0];
+			std::cout << " " << (double)in[index][0];
 		}
+		std::cout << std::endl;
 	}
-	std::cout << "D: " << sizeof(out)/sizeof(out[0]) << std::endl;
 
 	fftw_destroy_plan(p);
 	fftw_free(in); 
@@ -93,9 +92,7 @@ void TerrainGenerator::createTextureData(GLubyte* heightMap, unsigned int width,
 	_textureData.imageData = heightMap;
 	_textureData.width = (GLuint)width;
 	_textureData.height = (GLuint)depth;
-	_textureData.bpp = 24;
-
-	std::cout << "W: " << _textureData.width << " || H: " << _textureData.height << " || D: " << sizeof(_textureData.imageData)/sizeof(_textureData.imageData[0]) << std::endl;
+	_textureData.bpp = 8*sizeof(GLuint);
 }
 
 Terrain* TerrainGenerator::generateTerrain(const char* filePath)
@@ -107,31 +104,12 @@ Terrain* TerrainGenerator::generateTerrain(const char* filePath)
 Terrain* TerrainGenerator::generateTerrain()
 {
 	initArrays();
-	std::cout << "precalculation" << std::endl;
-	std::cout << "vertices" << std::endl;
 	calculatVertices();
-	std::cout << "indices" << std::endl;
 	calculateIndices();
-	std::cout << "normals" << std::endl;
 	calculateNormalVectors();
-
-	std::cout << "calculation done" << std::endl;
 	generateModel();
 	Terrain* terrain = new Terrain(_model, _textureData);
 	releaseMemory();
-
-	// for (int x = 0; x < terrain->width(); ++x)
-	// {
-	// 	for (int z = 0; z < terrain->depth(); ++z)
-	// 	{
-	// 		glm::vec3 v = terrain->vertexAt(x, z);
-	// 		glm::vec3 n = terrain->normalAt(x, z);
-	// 		std::cout << "v = {" << v.x << ", " << v.y << ", " << v.z << "}" << std::endl;
-	// 		std::cout << "n = {" << n.x << ", " << n.y << ", " << n.z << "}" << std::endl;
-	// 	}
-	// }
-
-
 	return terrain;
 }
 
@@ -152,6 +130,7 @@ void TerrainGenerator::initArrays()
 
 void TerrainGenerator::calculatVertices()
 {
+	std::cout << "---- vertice ----" << std::endl;
 	for (int x = 0; x < _textureData.width; ++x)
 	{
 		for (int z = 0; z < _textureData.height; ++z)
@@ -160,11 +139,13 @@ void TerrainGenerator::calculatVertices()
 
 			_vertexArray[index*3 + 0] = x/1.0;
 			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/20.0;
+			std::cout << " " << _vertexArray[index*3 + 1];
 			_vertexArray[index*3 + 2] = z/1.0;
 
 			_texCoordArray[index*2 + 0] = x;
 			_texCoordArray[index*2 + 1] = z;
 		}
+		std::cout << std::endl;
 	}
 }
 
