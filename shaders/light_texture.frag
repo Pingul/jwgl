@@ -21,7 +21,7 @@ void main(void)
 {
 	vec3 normal_n = normalize(normal);
 
-	const float Ka = 0.0f;
+	const float Ka = 0.4f;
 	vec4 textureColor = Ka*texture(TEXTURE_UNIT_0, textureCoordinates);
 
 	vec3 specularLight = vec3(0.0f, 0.0f, 0.0f);
