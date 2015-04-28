@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 
+
 glm::vec3 vecFromArrayAndIndex(GLfloat* array, int index)
 {
 	return glm::vec3(array[3*index], array[3*index + 1], array[3*index + 2]);
@@ -37,12 +38,11 @@ int TerrainGenerator::textureIndex(int x, int z, int offsetX, int offsetZ)
 
 Terrain* TerrainGenerator::generateTerrain(unsigned int width, unsigned int depth)
 {
-	GLubyte* heightMap = generateHeightMapData(width, depth);
-	createTextureData(heightMap, width, depth);
+	_heightMap = generateHeightMapData(width, depth);
 	return generateTerrain();
 }
 
-GLubyte* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned int depth)
+GLfloat* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned int depth)
 {
 	fftw_complex *in, *out;
 	fftw_plan p;
@@ -68,16 +68,16 @@ GLubyte* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned in
 
 	fftw_execute(p);
 
-	GLubyte* heightMap = (GLubyte*)malloc(sizeof(GLubyte)*width*depth);
+	GLfloat* heightMap = (GLfloat*)malloc(sizeof(GLfloat)*width*depth);
 	for (int x = 0; x < width; ++x)
 	{
 		for (int z = 0; z < depth; ++z)
 		{
 			int index = x + z*depth;
-			heightMap[index] = (GLubyte)in[index][0];
-			std::cout << " " << (double)in[index][0];
+			heightMap[index] = in[index][0];
+			// std::cout << " " << (double)in[index][0];
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
 
 	fftw_destroy_plan(p);
@@ -85,14 +85,6 @@ GLubyte* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned in
 	fftw_free(out);
 
 	return heightMap;
-}
-
-void TerrainGenerator::createTextureData(GLubyte* heightMap, unsigned int width, unsigned int depth)
-{
-	_textureData.imageData = heightMap;
-	_textureData.width = (GLuint)width;
-	_textureData.height = (GLuint)depth;
-	_textureData.bpp = 8*sizeof(GLuint);
 }
 
 Terrain* TerrainGenerator::generateTerrain(const char* filePath)
@@ -116,12 +108,26 @@ Terrain* TerrainGenerator::generateTerrain()
 void TerrainGenerator::loadTextureData(const char* filePath)
 {
 	LoadTGATextureData((char*)filePath, &_textureData);
+	unpackTextureData(&_textureData);
+}
+
+void TerrainGenerator::unpackTextureData(TextureData* textureData)
+{
+	_vertexCount = textureData->width*textureData->height;
+	_triangleCount = (textureData->width - 1)*(textureData->height - 1)*2;	
+	_heightMap = (GLfloat*)malloc(_vertexCount*sizeof(GLfloat));
+	for (int x = 0; x < textureData->width; ++x)
+	{
+		for (int z = 0; z < textureData->height; ++z)
+		{
+			unsigned int index = x + z*textureData->width;
+			_heightMap[index] = textureData->imageData[index*(textureData->bpp/8)]/256.0 - 1; // Normalizing around [-1, +1]
+		}
+	}
 }
 
 void TerrainGenerator::initArrays()
 {
-	_vertexCount = _textureData.width*_textureData.height;
-	_triangleCount = (_textureData.width - 1)*(_textureData.height - 1)*2;
 	_vertexArray = (GLfloat*)malloc(3*_vertexCount*sizeof(GLfloat));
 	_texCoordArray = (GLfloat*)malloc(2*_vertexCount*sizeof(GLfloat));
 	_normalArray = (GLfloat*)malloc(3*_vertexCount*sizeof(GLfloat));
@@ -130,7 +136,6 @@ void TerrainGenerator::initArrays()
 
 void TerrainGenerator::calculatVertices()
 {
-	std::cout << "---- vertice ----" << std::endl;
 	for (int x = 0; x < _textureData.width; ++x)
 	{
 		for (int z = 0; z < _textureData.height; ++z)
@@ -138,14 +143,12 @@ void TerrainGenerator::calculatVertices()
 			unsigned int index = x + z * _textureData.width;
 
 			_vertexArray[index*3 + 0] = x/1.0;
-			_vertexArray[index*3 + 1] = _textureData.imageData[index*(_textureData.bpp/8)]/20.0;
-			std::cout << " " << _vertexArray[index*3 + 1];
+			_vertexArray[index*3 + 1] = 20*_heightMap[index];
 			_vertexArray[index*3 + 2] = z/1.0;
 
 			_texCoordArray[index*2 + 0] = x;
 			_texCoordArray[index*2 + 1] = z;
 		}
-		std::cout << std::endl;
 	}
 }
 
@@ -225,11 +228,11 @@ void TerrainGenerator::releaseMemory()
 {
 	_vertexCount = 0;
 	_triangleCount = 0;
-	_vertexArray = nullptr;
-	_normalArray = nullptr;
-	_texCoordArray = nullptr;
-	_indexArray = nullptr;
-	_model = nullptr;
+	free(_vertexArray);
+	free(_normalArray);
+	free(_texCoordArray);
+	free(_indexArray);
+	free(_heightMap);
 	free(_textureData.imageData);
 }
 

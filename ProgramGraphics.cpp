@@ -22,9 +22,6 @@
 #define BOTTOM -1.0
 #define TOP 1.0
 
-void handleSphereObjectMovement();
-void handleCameraMovement();
-
 void ProgramGraphics::init()
 {
 	printError("--"); // This function seems to generate one extra error in the beginning, don't know why
@@ -82,8 +79,8 @@ void ProgramGraphics::loadModels()
 	// _objectManager->registerWorldObject(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
-	Terrain* terrain = _terrainGenerator->generateTerrain(16, 16);
-	// Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
+	// Terrain* terrain = _terrainGenerator->generateTerrain(16, 16);
+	Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
 	_objectManager->registerWorldObject(terrain);
 
 	// Sphere* sphere = new Sphere;
@@ -150,7 +147,7 @@ void ProgramGraphics::handleKeys()
 	handleSphereObjectMovement();
 }
 
-void handleCameraMovement()
+void ProgramGraphics::handleCameraMovement()
 {
 	static glm::vec3 step(0, 0, 0);
 	char stepTaken = 0;
@@ -198,7 +195,7 @@ void handleCameraMovement()
 	}
 }
 
-void handleSphereObjectMovement()
+void ProgramGraphics::handleSphereObjectMovement()
 {
 	if (!_objectManager->objects()->empty())
 	{

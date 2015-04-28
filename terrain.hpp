@@ -41,6 +41,7 @@ class TerrainGenerator
 		GLfloat* _vertexArray;
 		GLfloat* _normalArray;
 		GLfloat* _texCoordArray;
+		GLfloat* _heightMap;
 		GLuint* _indexArray;
 		TextureData _textureData;
 		VertexModel* _model;
@@ -53,10 +54,11 @@ class TerrainGenerator
 		void calculateNormalVectors();
 		void generateModel();
 		void releaseMemory();
-		void createTextureData(GLubyte* heightMap, unsigned int width, unsigned int depth);
+		void createTextureData(GLfloat* heightMap, unsigned int width, unsigned int depth);
 		void initArrays();
+		void unpackTextureData(TextureData* textureData);
 
-		GLubyte* generateHeightMapData(unsigned int width, unsigned int depth);
+		GLfloat* generateHeightMapData(unsigned int width, unsigned int depth);
 		Terrain* generateTerrain();
 
 };
