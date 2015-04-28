@@ -22,6 +22,9 @@
 #define BOTTOM -1.0
 #define TOP 1.0
 
+void handleSphereObjectMovement();
+void handleCameraMovement();
+
 void ProgramGraphics::init()
 {
 	printError("--"); // This function seems to generate one extra error in the beginning, don't know why
@@ -148,6 +151,12 @@ void ProgramGraphics::drawFrame(float t)
 
 void ProgramGraphics::handleKeys()
 {
+	handleCameraMovement();
+	handleSphereObjectMovement();
+}
+
+void handleCameraMovement()
+{
 	static glm::vec3 step(0, 0, 0);
 	char stepTaken = 0;
 
@@ -184,6 +193,19 @@ void ProgramGraphics::handleKeys()
 		step.y = -1;
 	}
 
+
+	if (stepTaken)
+	{
+		_camera->takeStep(step);
+		stepTaken = 0;
+		step.x = 0;
+		step.y = 0;
+		step.z = 0;
+	}
+}
+
+void handleSphereObjectMovement()
+{
 	Sphere* sphere = (Sphere*)_objectManager->objects()->at(0);
 	float sphereStep = 0.1;
 	if (glfwGetKey(_window, GLFW_KEY_L))
@@ -216,16 +238,8 @@ void ProgramGraphics::handleKeys()
 		sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
 		calculatePositions = true;
 	}
-
-	if (stepTaken)
-	{
-		_camera->takeStep(step);
-		stepTaken = 0;
-		step.x = 0;
-		step.y = 0;
-		step.z = 0;
-	}
 }
+
 
 void ProgramGraphics::handleMouseMovement()
 {
