@@ -8,7 +8,7 @@
 class Terrain : public WorldObject
 {
 	public:
-		Terrain(VertexModel* model, TextureData textureData);
+		Terrain(VertexModel* model, int width, int depth);
 		~Terrain();
 
 		virtual bool isAffectedByGravity() { return false; }
@@ -30,12 +30,15 @@ class TerrainGenerator
 {
 	public:
 		TerrainGenerator() = default;
-		~TerrainGenerator() = default;
+		~TerrainGenerator();
 
 		Terrain* generateTerrain(const char* filePath);
 		Terrain* generateTerrain(unsigned int width, unsigned int depth);
+		Terrain* applyTransformForLastTerrain();
 
 	private:
+		int _width;
+		int _depth;
 		int _vertexCount;
 		int _triangleCount;
 		GLfloat* _vertexArray;
@@ -43,7 +46,6 @@ class TerrainGenerator
 		GLfloat* _texCoordArray;
 		GLfloat* _heightMap;
 		GLuint* _indexArray;
-		TextureData _textureData;
 		VertexModel* _model;
 
 		char outOfBounds(int x, int z, int width, int height);
@@ -58,7 +60,8 @@ class TerrainGenerator
 		void initArrays();
 		void unpackTextureData(TextureData* textureData);
 
-		GLfloat* generateHeightMapData(unsigned int width, unsigned int depth);
+		GLfloat* generateHeightMapData();
+		void transformHeightMapData(GLfloat* data);
 		Terrain* generateTerrain();
 
 };

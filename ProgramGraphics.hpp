@@ -39,6 +39,7 @@ class ProgramGraphics : public jwgl::GraphicsHandler
 		void handleMouseMovement();
 		void handleSphereObjectMovement();
 		void handleCameraMovement();
+		void handleExtras(float t);
 };
 
 #endif

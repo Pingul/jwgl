@@ -30,6 +30,9 @@ void Physics::calculatePositions(float t)
 
 void Physics::findCollisions()
 {
+	if (_objectManager->terrain()->empty())
+		return;
+	
 	Terrain* terrain = _objectManager->terrain()->at(0);
 
 	for (int x = 0; x < terrain->width() - 1; ++x)

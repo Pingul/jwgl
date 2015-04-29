@@ -79,8 +79,8 @@ void ProgramGraphics::loadModels()
 	// _objectManager->registerWorldObject(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
-	// Terrain* terrain = _terrainGenerator->generateTerrain(16, 16);
-	Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
+	Terrain* terrain = _terrainGenerator->generateTerrain(128, 128);
+	// Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
 	_objectManager->registerWorldObject(terrain);
 
 	// Sphere* sphere = new Sphere;
@@ -100,7 +100,7 @@ void ProgramGraphics::loadModels()
 void ProgramGraphics::setupCamera()
 {
 	glm::vec3 lookingAt = glm::vec3(0, 0, 0);//_objectManager->objects()->at(0)->at();
-	glm::vec3 location = lookingAt - glm::vec3(10, -2, 10);
+	glm::vec3 location = lookingAt - glm::vec3(10, -50, 10);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -119,6 +119,8 @@ void ProgramGraphics::drawFrame(float t)
 
 	handleKeys();
 	handleMouseMovement();
+	handleExtras(t);
+
 	// if (calculatePositions)
 	// {
 		_physics->calculatePositions(t);
@@ -230,6 +232,31 @@ void ProgramGraphics::handleSphereObjectMovement()
 		{
 			sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
 			calculatePositions = true;
+		}
+	}
+}
+
+// Ugly function used to handle key inputs that needs a limit for how often the command can be called, e.g. transforming the generated data.
+void ProgramGraphics::handleExtras(float t)
+{
+	static float lastT = 0;
+	const float deltaT = 0.5; // s
+
+	if (t - lastT > deltaT)
+	{
+		lastT = t;
+
+		if (glfwGetKey(_window, GLFW_KEY_F))
+		{
+			if (!_objectManager->terrain()->empty())
+				delete _objectManager->terrain()->at(0);
+
+			_objectManager->terrain()->clear();
+
+			std::cout << "here" << std::endl;
+
+			Terrain* terrain = _terrainGenerator->applyTransformForLastTerrain();
+			_objectManager->registerWorldObject(terrain);
 		}
 	}
 }

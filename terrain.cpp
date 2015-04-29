@@ -3,6 +3,7 @@
 #include <fftw3.h>
 #include <time.h>
 #include <math.h>
+#include <algorithm>
 
 
 glm::vec3 vecFromArrayAndIndex(GLfloat* array, int index)
@@ -30,61 +31,21 @@ char TerrainGenerator::outOfBounds(int x, int z, int width, int height)
 
 int TerrainGenerator::textureIndex(int x, int z, int offsetX, int offsetZ)
 {
-	if (outOfBounds(x + offsetX, z + offsetZ, _textureData.width, _textureData.height))
-		return x + z*_textureData.width;
+	if (outOfBounds(x + offsetX, z + offsetZ, _width, _depth))
+		return x + z*_width;
 	else
-		return x + offsetX + (z + offsetZ)*_textureData.width;
+		return x + offsetX + (z + offsetZ)*_width;
 }
 
 Terrain* TerrainGenerator::generateTerrain(unsigned int width, unsigned int depth)
 {
-	_heightMap = generateHeightMapData(width, depth);
+	_width = width;
+	_depth = depth;
+	_vertexCount = _width*_depth;
+	_triangleCount = (_width - 1)*(_depth - 1)*2;
+	_heightMap = generateHeightMapData();
+	// transformHeightMapData(_heightMap);
 	return generateTerrain();
-}
-
-GLfloat* TerrainGenerator::generateHeightMapData(unsigned int width, unsigned int depth)
-{
-	fftw_complex *in, *out;
-	fftw_plan p;
-
-	in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * width*depth);
-	out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * width*depth);
-
-	srand(time(NULL));
-	for (int x = 0; x < width; ++x)
-	{
-		for (int z = 0; z < depth; ++z)
-		{
-			int index = x + z*depth;
-			// float distance = 1 + sqrt(x*x + z*z);
-			double dice_roll = rand() % 1000; 
-			dice_roll = dice_roll/500.0 - 1;
-			in[index][0] = dice_roll;
-			in[index][1] = 0.0;
-		}
-	}
-
-	p = fftw_plan_dft_2d(width, depth, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
-
-	fftw_execute(p);
-
-	GLfloat* heightMap = (GLfloat*)malloc(sizeof(GLfloat)*width*depth);
-	for (int x = 0; x < width; ++x)
-	{
-		for (int z = 0; z < depth; ++z)
-		{
-			int index = x + z*depth;
-			heightMap[index] = in[index][0];
-			// std::cout << " " << (double)in[index][0];
-		}
-		// std::cout << std::endl;
-	}
-
-	fftw_destroy_plan(p);
-	fftw_free(in); 
-	fftw_free(out);
-
-	return heightMap;
 }
 
 Terrain* TerrainGenerator::generateTerrain(const char* filePath)
@@ -100,27 +61,38 @@ Terrain* TerrainGenerator::generateTerrain()
 	calculateIndices();
 	calculateNormalVectors();
 	generateModel();
-	Terrain* terrain = new Terrain(_model, _textureData);
-	releaseMemory();
+	Terrain* terrain = new Terrain(_model, _width, _depth);
 	return terrain;
+}
+
+Terrain* TerrainGenerator::applyTransformForLastTerrain()
+{
+	if (!_heightMap)
+		throw std::runtime_error("applyTransformForLastTerrain: Height data for ");
+	transformHeightMapData(_heightMap);
+	return generateTerrain();
 }
 
 void TerrainGenerator::loadTextureData(const char* filePath)
 {
-	LoadTGATextureData((char*)filePath, &_textureData);
-	unpackTextureData(&_textureData);
+	TextureData textureData;
+	LoadTGATextureData((char*)filePath, &textureData);
+	unpackTextureData(&textureData);
+	free(textureData.imageData);
 }
 
 void TerrainGenerator::unpackTextureData(TextureData* textureData)
 {
-	_vertexCount = textureData->width*textureData->height;
-	_triangleCount = (textureData->width - 1)*(textureData->height - 1)*2;	
+	_width = textureData->width;
+	_depth = textureData->height;
+	_vertexCount = _width*_depth;
+	_triangleCount = (_width - 1)*(_depth - 1)*2;
 	_heightMap = (GLfloat*)malloc(_vertexCount*sizeof(GLfloat));
-	for (int x = 0; x < textureData->width; ++x)
+	for (int x = 0; x < _width; ++x)
 	{
-		for (int z = 0; z < textureData->height; ++z)
+		for (int z = 0; z < _depth; ++z)
 		{
-			unsigned int index = x + z*textureData->width;
+			unsigned int index = x + z*_width;
 			_heightMap[index] = textureData->imageData[index*(textureData->bpp/8)]/256.0 - 1; // Normalizing around [-1, +1]
 		}
 	}
@@ -136,14 +108,14 @@ void TerrainGenerator::initArrays()
 
 void TerrainGenerator::calculatVertices()
 {
-	for (int x = 0; x < _textureData.width; ++x)
+	for (int x = 0; x < _width; ++x)
 	{
-		for (int z = 0; z < _textureData.height; ++z)
+		for (int z = 0; z < _depth; ++z)
 		{
-			unsigned int index = x + z * _textureData.width;
+			unsigned int index = x + z * _width;
 
 			_vertexArray[index*3 + 0] = x/1.0;
-			_vertexArray[index*3 + 1] = 20*_heightMap[index];
+			_vertexArray[index*3 + 1] = 10*_heightMap[index];
 			_vertexArray[index*3 + 2] = z/1.0;
 
 			_texCoordArray[index*2 + 0] = x;
@@ -154,27 +126,27 @@ void TerrainGenerator::calculatVertices()
 
 void TerrainGenerator::calculateIndices()
 {
-	for (int x = 0; x < _textureData.width - 1; ++x)
+	for (int x = 0; x < _width - 1; ++x)
 	{
-		for (int z = 0; z < _textureData.height - 1; ++z)
+		for (int z = 0; z < _depth - 1; ++z)
 		{
 			// Triangle 1
-			_indexArray[(x + z*(_textureData.width-1))*6 + 0] = x + z*_textureData.width;
-			_indexArray[(x + z*(_textureData.width-1))*6 + 1] = x + (z + 1)*_textureData.width;
-			_indexArray[(x + z*(_textureData.width-1))*6 + 2] = x + 1 + z*_textureData.width;
+			_indexArray[(x + z*(_width-1))*6 + 0] = x + z*_width;
+			_indexArray[(x + z*(_width-1))*6 + 1] = x + (z + 1)*_width;
+			_indexArray[(x + z*(_width-1))*6 + 2] = x + 1 + z*_width;
 			// Triangle 2
-			_indexArray[(x + z*(_textureData.width-1))*6 + 3] = x + 1 + z*_textureData.width;
-			_indexArray[(x + z*(_textureData.width-1))*6 + 4] = x + (z + 1)*_textureData.width;
-			_indexArray[(x + z*(_textureData.width-1))*6 + 5] = x + 1 + (z + 1)*_textureData.width;
+			_indexArray[(x + z*(_width-1))*6 + 3] = x + 1 + z*_width;
+			_indexArray[(x + z*(_width-1))*6 + 4] = x + (z + 1)*_width;
+			_indexArray[(x + z*(_width-1))*6 + 5] = x + 1 + (z + 1)*_width;
 		}
 	}
 }
 
 void TerrainGenerator::calculateNormalVectors()
 {
-	for (int x = 0; x < _textureData.width; ++x)
+	for (int x = 0; x < _width; ++x)
 	{
-		for (int z = 0; z < _textureData.height; ++z)
+		for (int z = 0; z < _depth; ++z)
 		{
 
 			int index[] = 
@@ -224,7 +196,76 @@ void TerrainGenerator::generateModel()
 	_model = vertexModel;
 }
 
-void TerrainGenerator::releaseMemory()
+GLfloat* TerrainGenerator::generateHeightMapData()
+{
+	GLfloat* heightMap = (GLfloat*)malloc(sizeof(GLfloat)*_width*_depth);
+	srand(time(NULL));
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int z = 0; z < _depth; ++z)
+		{
+			int index = x + z*_depth;
+			GLfloat dice_roll = rand() % 1000; 
+			dice_roll = dice_roll/500.0 - 1;
+			heightMap[index] = dice_roll;
+		}
+	}
+
+	return heightMap;
+}
+
+void TerrainGenerator::transformHeightMapData(GLfloat* data)
+{
+	fftw_complex *in, *out;
+	fftw_plan p;
+
+	in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _width*_depth);
+	out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _width*_depth);
+
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int z = 0; z < _depth; ++z)
+		{
+			int index = x + z*_depth;
+			float distance = sqrt(x*x + z*z) + 1;
+			in[index][0] = data[index]/(distance*distance);
+			in[index][1] = 0.0;
+		}
+	}
+
+	p = fftw_plan_dft_2d(_width, _depth, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
+	fftw_execute(p);
+
+	// Normalizing data
+	float normalizer = 0;
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int z = 0; z < _depth; ++z)
+		{
+			int index = x + z*_depth;
+			data[index] = out[index][0];
+			normalizer = fabs(data[index]) > normalizer ? fabs(data[index]) : normalizer;
+		}	
+	}
+
+	std::cout << "norming with " << normalizer << "." << std::endl;
+
+	for (int x = 0; x < _width; ++x)
+	{
+		for (int z = 0; z < _depth; ++z)
+		{
+			int index = x + z*_depth;
+			data[index] /= normalizer;
+		}
+	}
+
+	fftw_destroy_plan(p);
+	fftw_free(in); 
+	fftw_free(out);
+}
+
+TerrainGenerator::~TerrainGenerator()
 {
 	_vertexCount = 0;
 	_triangleCount = 0;
@@ -233,14 +274,13 @@ void TerrainGenerator::releaseMemory()
 	free(_texCoordArray);
 	free(_indexArray);
 	free(_heightMap);
-	free(_textureData.imageData);
 }
 
-Terrain::Terrain(VertexModel* model, TextureData textureData)
+Terrain::Terrain(VertexModel* model, int width, int depth)
 {
 	_model = model;
-	_width = textureData.width;
-	_depth = textureData.height;
+	_width = width;
+	_depth = depth;
 }
 
 
