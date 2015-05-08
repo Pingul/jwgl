@@ -2,6 +2,7 @@
 #include "misc.hpp"
 #include "GL_utilities.hpp"
 #include "loadobj.hpp"
+#include <time.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +16,7 @@
 #include "terrain.hpp"
 #include "physics.hpp"
 
+
 #define NEAR 1.0
 #define FAR 300.0
 #define RIGHT 1.0
@@ -22,8 +24,12 @@
 #define BOTTOM -1.0
 #define TOP 1.0
 
+#define TERRAIN_DEPTH 128
+#define TERRAIN_WIDTH 128
+
 void ProgramGraphics::init()
 {
+	srand(time(NULL)); // Using some random functions during the program
 	printError("--"); // This function seems to generate one extra error in the beginning, don't know why
 
 	setupOpenGL();
@@ -79,7 +85,7 @@ void ProgramGraphics::loadModels()
 	// _objectManager->registerWorldObject(sphere);
 
 	_terrainGenerator = new TerrainGenerator;
-	Terrain* terrain = _terrainGenerator->generateTerrain(128, 128);
+	Terrain* terrain = _terrainGenerator->generateTerrain(TERRAIN_WIDTH, TERRAIN_DEPTH);
 	// Terrain* terrain = _terrainGenerator->generateTerrain("models/fft-terrain.tga");
 	_objectManager->registerWorldObject(terrain);
 
@@ -100,7 +106,7 @@ void ProgramGraphics::loadModels()
 void ProgramGraphics::setupCamera()
 {
 	glm::vec3 lookingAt = glm::vec3(0, 0, 0);//_objectManager->objects()->at(0)->at();
-	glm::vec3 location = lookingAt - glm::vec3(10, -50, 10);
+	glm::vec3 location = lookingAt - glm::vec3(5, -5, 5);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -111,8 +117,6 @@ void ProgramGraphics::setupPhysics()
 	_physics->registerObjectManager(_objectManager);
 }
 
-bool calculatePositions = true;
-
 void ProgramGraphics::drawFrame(float t)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -121,11 +125,7 @@ void ProgramGraphics::drawFrame(float t)
 	handleMouseMovement();
 	handleExtras(t);
 
-	// if (calculatePositions)
-	// {
-		_physics->calculatePositions(t);
-		calculatePositions = false;
-	// }
+	_physics->calculatePositions(t);
 
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
@@ -146,7 +146,6 @@ void ProgramGraphics::drawFrame(float t)
 void ProgramGraphics::handleKeys()
 {
 	handleCameraMovement();
-	handleSphereObjectMovement();
 }
 
 void ProgramGraphics::handleCameraMovement()
@@ -206,32 +205,26 @@ void ProgramGraphics::handleSphereObjectMovement()
 		if (glfwGetKey(_window, GLFW_KEY_L))
 		{
 			sphere->move(sphere->at() + glm::vec3(0, -sphereStep, 0));
-			calculatePositions = true;
 		}
 		else if (glfwGetKey(_window, GLFW_KEY_O))
 		{
 			sphere->move(sphere->at() + glm::vec3(0, sphereStep, 0));
-			calculatePositions = true;
 		}
 		else if (glfwGetKey(_window, GLFW_KEY_UP))
 		{
 			sphere->move(sphere->at() + glm::vec3(0, 0, -sphereStep));
-			calculatePositions = true;
 		} 
 		else if (glfwGetKey(_window, GLFW_KEY_DOWN))
 		{
 			sphere->move(sphere->at() + glm::vec3(0, 0, sphereStep));
-			calculatePositions = true;
 		} 
 		else if (glfwGetKey(_window, GLFW_KEY_LEFT))
 		{
 			sphere->move(sphere->at() + glm::vec3(-sphereStep, 0, 0));
-			calculatePositions = true;
 		}
 		else if (glfwGetKey(_window, GLFW_KEY_RIGHT))
 		{
 			sphere->move(sphere->at() + glm::vec3(sphereStep, 0, 0));
-			calculatePositions = true;
 		}
 	}
 }
@@ -239,24 +232,33 @@ void ProgramGraphics::handleSphereObjectMovement()
 // Ugly function used to handle key inputs that needs a limit for how often the command can be called, e.g. transforming the generated data.
 void ProgramGraphics::handleExtras(float t)
 {
-	static float lastT = 0;
-	const float deltaT = 0.5; // s
-
-	if (t - lastT > deltaT)
+	if (glfwGetKey(_window, GLFW_KEY_1))
 	{
-		lastT = t;
-
-		if (glfwGetKey(_window, GLFW_KEY_F))
+		static float lastT = 0;
+		if (t - lastT > 0.5)
 		{
+			lastT = t;
 			if (!_objectManager->terrain()->empty())
 				delete _objectManager->terrain()->at(0);
 
 			_objectManager->terrain()->clear();
 
-			std::cout << "here" << std::endl;
-
-			Terrain* terrain = _terrainGenerator->applyTransformForLastTerrain();
+			Terrain* terrain = _terrainGenerator->generateTerrain(TERRAIN_WIDTH, TERRAIN_DEPTH);
 			_objectManager->registerWorldObject(terrain);
+		}
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_2))
+	{
+		static float lastT = 0;
+		if (t - lastT > 0.1)
+		{
+			lastT = t;
+			Sphere* sphere = new Sphere;
+			sphere->move(glm::vec3(10, _objectManager->terrain()->at(0)->heightAt(10, 10), 10));
+			glm::vec3 toSpeed = glm::vec3(rand() % 20 + 5, rand() % 20 + 5, rand() % 20 + 5);
+			sphere->accelerate(toSpeed);
+			_objectManager->registerWorldObject(sphere);
+			std::cout << "count: " << _objectManager->objects()->size() << std::endl;
 		}
 	}
 }

@@ -35,22 +35,28 @@ void Physics::findCollisions()
 	
 	Terrain* terrain = _objectManager->terrain()->at(0);
 
-	for (int x = 0; x < terrain->width() - 1; ++x)
+	for (auto &sphere : *_objectManager->objects())
 	{
-		for (int z = 0; z < terrain->depth() - 1; ++z)
-		{
-	// for (int x = 130; x < 132; ++x)
-	// {
-	// 	for (int z = 130; z < 132; ++z)
-	// 	{
-			// defines the first vertex
-			glm::vec3 origin = terrain->vertexAt(x, z);
-			glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
-			glm::vec3 edge2 = terrain->vertexAt(x + 1, z + 1) - origin;
-			glm::vec3 normal = glm::cross(edge1, edge2);
+		int minX = floor(sphere->at().x - sphere->radius());
+		int maxX = ceil(sphere->at().x + sphere->radius());
+		minX = minX > 0 ? minX : 0;
+		maxX = maxX > terrain->width() - 1 ? minX : maxX;
 
-			for (auto &sphere : *_objectManager->objects())
+		int minZ = floor(sphere->at().z - sphere->radius());
+		int maxZ = ceil(sphere->at().z + sphere->radius());
+		minZ = minZ > 0 ? minZ : 0;
+		maxZ = maxZ > terrain->width() - 1 ? minZ : maxZ;
+
+		for (int x = minX; x < maxX; ++x)
+		{
+			for (int z = minZ; z < maxZ; ++z)
 			{
+				// defines the first vertex
+				glm::vec3 origin = terrain->vertexAt(x, z);
+				glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
+				glm::vec3 edge2 = terrain->vertexAt(x + 1, z + 1) - origin;
+				glm::vec3 normal = glm::cross(edge1, edge2);
+
 				float val = glm::dot(normal, sphere->at() - origin);
 				if (sphere->radius() > val && val > -sphere->radius())
 				{
@@ -60,14 +66,12 @@ void Physics::findCollisions()
 
 					float param2 = (s.x*edge1.z - s.z*edge1.x)/(edge2.x*edge1.z - edge2.z*edge1.x);
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
-					// std::cout << x << "." << z << " - " << "p1: " << param1 << " || " << param2 << std::endl;
 					if (param1 + param2 <= 1 && param1 >= 0 && param2 >= 0)
 					{
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
-						// std::cout << "v: {" << sphere->velocity().x << ", " << sphere->velocity().y << "," << sphere->velocity().z << "}" << std::endl;
-						return;
+						break;
 					}
 				}
 
@@ -88,7 +92,6 @@ void Physics::findCollisions()
 					{
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
-						return;
 					}
 				}
 			}

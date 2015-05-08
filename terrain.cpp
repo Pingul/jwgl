@@ -1,7 +1,6 @@
 #include "terrain.hpp"
 #include <iostream>
 #include <fftw3.h>
-#include <time.h>
 #include <math.h>
 #include <algorithm>
 
@@ -44,7 +43,7 @@ Terrain* TerrainGenerator::generateTerrain(unsigned int width, unsigned int dept
 	_vertexCount = _width*_depth;
 	_triangleCount = (_width - 1)*(_depth - 1)*2;
 	_heightMap = generateHeightMapData();
-	// transformHeightMapData(_heightMap);
+	transformHeightMapData(_heightMap);
 	return generateTerrain();
 }
 
@@ -199,7 +198,6 @@ void TerrainGenerator::generateModel()
 GLfloat* TerrainGenerator::generateHeightMapData()
 {
 	GLfloat* heightMap = (GLfloat*)malloc(sizeof(GLfloat)*_width*_depth);
-	srand(time(NULL));
 	for (int x = 0; x < _width; ++x)
 	{
 		for (int z = 0; z < _depth; ++z)
@@ -212,6 +210,13 @@ GLfloat* TerrainGenerator::generateHeightMapData()
 	}
 
 	return heightMap;
+}
+
+GLfloat filterFunc(GLfloat data, float distance)
+{	
+	float ampl = 0.7;
+	float offset = 0.0;
+	return data*exp(-ampl*(distance + offset));
 }
 
 void TerrainGenerator::transformHeightMapData(GLfloat* data)
@@ -228,7 +233,7 @@ void TerrainGenerator::transformHeightMapData(GLfloat* data)
 		{
 			int index = x + z*_depth;
 			float distance = sqrt(x*x + z*z) + 1;
-			in[index][0] = data[index]/(distance*distance);
+			in[index][0] = filterFunc(data[index], distance);
 			in[index][1] = 0.0;
 		}
 	}
