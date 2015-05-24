@@ -135,7 +135,7 @@ void Bunny::draw(GLuint shaderProgram)
 
 Sphere::Sphere()
 {
-	_elasticity = 0.7;
+	_elasticity = 0.9;
 	ModelManager* models = ModelManager::shared();
 	if (!models->isLoaded(MODEL_TYPE_SPHERE))
 		_model = models->load(MODEL_TYPE_SPHERE);
@@ -146,6 +146,6 @@ Sphere::Sphere()
 void Sphere::draw(GLuint shaderProgram)
 {
 	glm::mat4 MTW = glm::translate(glm::mat4(1.0), glm::vec3(_location.x, _location.y - _radius, _location.z));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));	
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MTW"), 1, GL_FALSE, glm::value_ptr(MTW));
 	_model->drawModel(shaderProgram, "in_Position", "in_Normal", "in_TextureCoordinates");
 }
