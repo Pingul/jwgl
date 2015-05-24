@@ -214,7 +214,7 @@ GLfloat* TerrainGenerator::generateHeightMapData()
 
 GLfloat filterFunc(GLfloat data, float distance)
 {	
-	float ampl = 0.7;
+	float ampl = 0.1;
 	float offset = 0.0;
 	return data*exp(-ampl*(distance + offset));
 }

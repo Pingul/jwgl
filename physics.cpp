@@ -55,7 +55,7 @@ void Physics::findCollisions()
 				glm::vec3 origin = terrain->vertexAt(x, z);
 				glm::vec3 edge1 = terrain->vertexAt(x, z + 1) - origin;
 				glm::vec3 edge2 = terrain->vertexAt(x + 1, z + 1) - origin;
-				glm::vec3 normal = glm::cross(edge1, edge2);
+				glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
 
 				float val = glm::dot(normal, sphere->at() - origin);
 				if (sphere->radius() > val && val > -sphere->radius())
@@ -76,9 +76,9 @@ void Physics::findCollisions()
 				}
 
 				// Same thing, next vertex
-				edge1 = edge2; // we want right system
+				edge1 = edge2; // we want right-hand coordinate system
 				edge2 = terrain->vertexAt(x + 1, z) - origin;
-				normal = glm::cross(edge1, edge2);
+				normal = glm::normalize(glm::cross(edge1, edge2));
 
 				val = val = glm::dot(normal, sphere->at() - origin);
 				if (sphere->radius() > val && val > -sphere->radius())
@@ -90,6 +90,7 @@ void Physics::findCollisions()
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
 					if (param1 + param2 <= 1 && param1 >= 0 && param2 >= 0)
 					{
+
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
 					}

@@ -105,8 +105,8 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 lookingAt = glm::vec3(0, 0, 0);//_objectManager->objects()->at(0)->at();
-	glm::vec3 location = lookingAt - glm::vec3(5, -5, 5);
+	glm::vec3 lookingAt = glm::vec3(64, 0, 64);//_objectManager->objects()->at(0)->at();
+	glm::vec3 location = glm::vec3(64, 64, -10);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -254,9 +254,10 @@ void ProgramGraphics::handleExtras(float t)
 		{
 			lastT = t;
 			Sphere* sphere = new Sphere;
-			sphere->move(glm::vec3(10, _objectManager->terrain()->at(0)->heightAt(10, 10), 10));
-			glm::vec3 toSpeed = glm::vec3(rand() % 20 + 5, rand() % 20 + 5, rand() % 20 + 5);
-			sphere->accelerate(toSpeed);
+			sphere->move(_camera->at() + glm::vec3(0, 2, 0));
+			// sphere->move(glm::vec3(10, _objectManager->terrain()->at(0)->heightAt(10, 10), 10));
+			// glm::vec3 toSpeed = glm::vec3(rand() % 20 + 5, rand() % 20 + 5, rand() % 20 + 5);
+			// sphere->accelerate(toSpeed);
 			_objectManager->registerWorldObject(sphere);
 			std::cout << "count: " << _objectManager->objects()->size() << std::endl;
 		}

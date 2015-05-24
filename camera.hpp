@@ -13,6 +13,7 @@ class Camera
 		void reorient(int newX, int newY);
 		void takeStep(glm::vec3 directionRelativeToCamera);
 		glm::mat4 WTVMatrix();
+		glm::vec3 at() { return _location; }
 
 	private:
 		glm::vec3 _location;
