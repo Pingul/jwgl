@@ -9,6 +9,7 @@ class Terrain : public WorldObject
 {
 	public:
 		Terrain(VertexModel* model, int width, int depth);
+		Terrain(const Terrain&) = default; // Doesn't copy the VertexModel which is what we want in this scenario
 		~Terrain();
 
 		virtual bool isAffectedByGravity() { return false; }

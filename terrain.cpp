@@ -214,9 +214,10 @@ GLfloat* TerrainGenerator::generateHeightMapData()
 
 GLfloat filterFunc(GLfloat data, float distance)
 {	
-	float ampl = 0.1;
-	float offset = 0.0;
+	float ampl = 0.7;
+	float offset = 0;
 	return data*exp(-ampl*(distance + offset));
+	// return data/(distance*distance*distance);
 }
 
 void TerrainGenerator::transformHeightMapData(GLfloat* data)
@@ -253,8 +254,6 @@ void TerrainGenerator::transformHeightMapData(GLfloat* data)
 			normalizer = fabs(data[index]) > normalizer ? fabs(data[index]) : normalizer;
 		}	
 	}
-
-	std::cout << "norming with " << normalizer << "." << std::endl;
 
 	for (int x = 0; x < _width; ++x)
 	{
@@ -316,5 +315,7 @@ float Terrain::heightAt(float x, float z)
 
 Terrain::~Terrain()
 {
-	delete _model;
+	// This is not valid if we allow copying the terrain to duplicate the terrain path but not the VertexModel
+	// Stray VertexModels will exists as of now.
+	// delete _model;
 }

@@ -17,7 +17,7 @@ void Physics::registerObjectManager(WorldObjectManager* objects)
 void Physics::calculatePositions(float t)
 {
 	float deltaT = t - _lastTime;
-	findCollisions();
+	findCollisions(); // Updates direction of velocity for affected objects as well
 	for (WorldObject* &obj : *_objectManager->objects())
 	{
 		if (obj->isAffectedByGravity())
@@ -71,7 +71,7 @@ void Physics::findCollisions()
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
-						break;
+						break; // Can't return here as we then don't calculate collission for the next spheres
 					}
 				}
 
@@ -90,7 +90,6 @@ void Physics::findCollisions()
 					float param1 = (s.z - param2*edge2.z)/edge1.z;
 					if (param1 + param2 <= 1 && param1 >= 0 && param2 >= 0)
 					{
-
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
 					}

@@ -105,8 +105,8 @@ void ProgramGraphics::loadModels()
 
 void ProgramGraphics::setupCamera()
 {
-	glm::vec3 lookingAt = glm::vec3(64, 0, 64);//_objectManager->objects()->at(0)->at();
-	glm::vec3 location = glm::vec3(64, 64, -10);
+	glm::vec3 lookingAt = glm::vec3(68, 0, 64);//_objectManager->objects()->at(0)->at();
+	glm::vec3 location = glm::vec3(64, 64, -40);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -238,8 +238,8 @@ void ProgramGraphics::handleExtras(float t)
 		if (t - lastT > 0.5)
 		{
 			lastT = t;
-			if (!_objectManager->terrain()->empty())
-				delete _objectManager->terrain()->at(0);
+			for (auto &terrain : *_objectManager->terrain())
+				delete terrain;
 
 			_objectManager->terrain()->clear();
 
@@ -260,6 +260,28 @@ void ProgramGraphics::handleExtras(float t)
 			// sphere->accelerate(toSpeed);
 			_objectManager->registerWorldObject(sphere);
 			std::cout << "count: " << _objectManager->objects()->size() << std::endl;
+		}
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_3))
+	{
+		static float lastT = 0;
+		if (t - lastT > 0.5)
+		{
+			lastT = t;
+			Terrain* modelTerrain = _objectManager->terrain()->at(0);
+
+			for (int i = -1; i <= 1; ++i)
+			{
+				for (int j = -1; j <= 1; ++j)
+				{
+					if (! (i == 0 && j == 0))
+					{
+						Terrain* newTerrain = new Terrain(*modelTerrain);
+						newTerrain->move(glm::vec3(i*(TERRAIN_WIDTH - 1), 0, j*(TERRAIN_DEPTH - 1)));
+						_objectManager->registerWorldObject(newTerrain);
+					}
+				}
+			}
 		}
 	}
 }
