@@ -48,7 +48,6 @@ void main(void)
 		vec3 viewDirection = -normalize(surface);
 		specularLight += Ks/*/pow(length(light), 0.25)*/*pow(max(0, dot(reflectedDirection, viewDirection)), specularExponent[i])*lightSourceColor[i];			
 	}
-
 	outColor = textureColor + vec4(specularLight + diffuseLight, 1.0f);
 	// outColor = vec4(isDirectional[0]);
 }
