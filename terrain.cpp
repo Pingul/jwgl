@@ -212,10 +212,10 @@ GLfloat* TerrainGenerator::generateHeightMapData()
 	return heightMap;
 }
 
-GLfloat filterFunc(GLfloat data, float distance)
+double filterFunc(GLfloat data, double distance)
 {	
-	float ampl = 0.7;
-	float offset = 0;
+	double ampl = 1;
+	double offset = 0;
 	return data*exp(-ampl*(distance + offset));
 	// return data/(distance*distance*distance);
 }
@@ -233,7 +233,7 @@ void TerrainGenerator::transformHeightMapData(GLfloat* data)
 		for (int z = 0; z < _depth; ++z)
 		{
 			int index = x + z*_depth;
-			float distance = sqrt(x*x + z*z) + 1;
+			double distance = sqrt(x*x + z*z) + 1;
 			in[index][0] = filterFunc(data[index], distance);
 			in[index][1] = 0.0;
 		}
@@ -244,14 +244,14 @@ void TerrainGenerator::transformHeightMapData(GLfloat* data)
 	fftw_execute(p);
 
 	// Normalizing data
-	float normalizer = 0;
+	double normalizer = 0;
 	for (int x = 0; x < _width; ++x)
 	{
 		for (int z = 0; z < _depth; ++z)
 		{
 			int index = x + z*_depth;
-			data[index] = out[index][0];
-			normalizer = fabs(data[index]) > normalizer ? fabs(data[index]) : normalizer;
+			out[index][0] = out[index][0];
+			normalizer = fabs(out[index][0]) > normalizer ? fabs(out[index][0]) : normalizer;
 		}	
 	}
 
@@ -260,7 +260,7 @@ void TerrainGenerator::transformHeightMapData(GLfloat* data)
 		for (int z = 0; z < _depth; ++z)
 		{
 			int index = x + z*_depth;
-			data[index] /= normalizer;
+			data[index] = out[index][0];
 		}
 	}
 

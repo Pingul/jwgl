@@ -71,7 +71,7 @@ void Physics::findCollisions()
 						// Move out and change velocity accordingly
 						sphere->move(cutPoint + sphere->radius()*normal);
 						sphere->accelerate(sphere->elasticity()*terrain->elasticity()*glm::reflect(sphere->velocity(), normal));
-						break; // Can't return here as we then don't calculate collission for the next spheres
+						// break; // Can't return here as we then don't calculate collission for the next spheres
 					}
 				}
 
