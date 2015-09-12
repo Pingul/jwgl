@@ -22,8 +22,8 @@ Simulation::Simulation(const char* file)
 		else
 			std::cout << "Given setting was not found: '" << setting.first << '"' << std::endl;
 	}
-
 	validateSimulation();
+	delete settings;
 }
 
 void Simulation::validateSimulation()

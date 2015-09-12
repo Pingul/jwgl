@@ -73,5 +73,7 @@ void VisualizationGraphicsHandler::drawFrame(float t)
 
 VisualizationGraphicsHandler::~VisualizationGraphicsHandler()
 {
-
+	delete _shaders;
+	delete _camera;
+	delete _lightSources;
 }
