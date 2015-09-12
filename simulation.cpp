@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <exception>
 
 Simulation::Simulation(const char* file)
 {
@@ -21,4 +22,15 @@ Simulation::Simulation(const char* file)
 		else
 			std::cout << "Given setting was not found: '" << setting.first << '"' << std::endl;
 	}
+
+	validateSimulation();
+}
+
+void Simulation::validateSimulation()
+{
+	if (timeDelta < 0.0)
+		throw std::runtime_error{"timeDelta is not properly initialized"};
+
+	if (visualizationSpeed < 0.0)
+		visualizationSpeed = timeDelta;
 }

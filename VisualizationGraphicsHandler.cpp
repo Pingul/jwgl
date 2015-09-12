@@ -18,6 +18,7 @@ void VisualizationGraphicsHandler::init()
 	loadLightSources();
 	setupCamera();
 
+	
 	Simulation* sim = new Simulation("sim-format.txt");
 }
 

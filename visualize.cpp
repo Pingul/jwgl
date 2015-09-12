@@ -11,7 +11,7 @@ int main()
 		handler.createWindow();
 		handler.displayWindow();
 	} 
-	catch (std::exception& error)
+	catch (const std::exception& error)
 	{
 		std::cout << "ERROR: " << error.what() << std::endl;
 		std::cout << "abort" << std::endl;

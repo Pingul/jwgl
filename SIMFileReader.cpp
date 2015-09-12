@@ -34,7 +34,7 @@ bool isStatement(const std::string& str)
 std::string statementVariable(const std::string& statement)
 {
 	if (!isStatement(statement))
-		throw new std::runtime_error{"Expected statement"};
+		throw std::runtime_error{"Expected statement"};
 
 	std::string variable{statement.substr(0, statement.find('='))};
 	return trim(variable);
@@ -43,7 +43,7 @@ std::string statementVariable(const std::string& statement)
 double statementValue(const std::string& statement)
 {
 	if (!isStatement(statement))
-		throw new std::runtime_error{"Expected statement"};
+		throw std::runtime_error{"Expected statement"};
 
 	std::string value{statement.substr(statement.find('=') + 1, std::string::npos)};
 	return std::stod(value);

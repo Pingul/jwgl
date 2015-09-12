@@ -7,9 +7,11 @@ class Simulation
 		Simulation(const char* file); // Read the simulation data from file
 
 	private:
-		double timeDelta;
-		double timeStart;
-		double visualizationSpeed;
+		double timeDelta{-1.0};
+		double timeStart{0.0};
+		double visualizationSpeed{-1.0};
+
+		void validateSimulation();
 };
 
 #endif
