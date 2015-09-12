@@ -49,7 +49,7 @@ namespace jwgl
 			glfwSwapBuffers(_window);
 			glfwPollEvents();
 
-			if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS)
 			{
 				glfwSetWindowShouldClose(_window, GL_TRUE);
 			}
