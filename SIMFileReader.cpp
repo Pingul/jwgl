@@ -3,6 +3,7 @@
 #include <fstream>
 #include <regex>
 #include <algorithm>
+#include <exception>
 
 std::string trim(const std::string& str, const std::string& whitespace = " \t")
 {
@@ -30,11 +31,23 @@ bool isStatement(const std::string& str)
 	return std::regex_search(str, pattern);
 }
 
-// std::string statementVariable(const std::string& str)
-// {
-// 	if (!isStatement(str))
-// 		throw new 
-// }
+std::string statementVariable(const std::string& statement)
+{
+	if (!isStatement(statement))
+		throw new std::runtime_error{"Expected statement"};
+
+	std::string variable{statement.substr(0, statement.find('='))};
+	return trim(variable);
+}
+
+double statementValue(const std::string& statement)
+{
+	if (!isStatement(statement))
+		throw new std::runtime_error{"Expected statement"};
+
+	std::string value{statement.substr(statement.find('=') + 1, std::string::npos)};
+	return std::stod(value);
+}
 
 void SIMFileReader::readSettings(const char* file, std::map<std::string, double>& settings)
 {
@@ -44,11 +57,24 @@ void SIMFileReader::readSettings(const char* file, std::map<std::string, double>
 	{
 		while (getline(simFile, line))
 		{
-			line = trim(strip(line));
-			if (isStatement(line))
+			std::string trimmedLine{trim(strip(line))};
+			if (isStatement(trimmedLine))
+			{
+				std::string variable{statementVariable(trimmedLine)};
+				double value;
+				if (variable.compare("t") == 0) // not a setting, exit
+					break;
 
-			if (!line.empty())
-				std::cout << line << (isStatement(line) ? "matched" : "") << std::endl;
+				try
+				{
+					value = statementValue(trimmedLine);
+					settings.insert(std::pair<std::string, double>{variable, value});
+				}
+				catch(...)
+				{
+					std::cout << "Could not properly parse '" + line + '"' << std::endl;
+				}
+			}
 		}
 		simFile.close();
 	}

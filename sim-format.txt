@@ -20,12 +20,12 @@ non_existing_setting = value
 
 
 # Necessary settings
-time_delta = 100
+timeDelta = 100
 
 # Optional settings
-time_start = 10 # Potentially start later in the simulation. Default value is 0.
+timeStart = 10 # Potentially start later in the simulation. Default value is 0.
 
-visualization_speed = 200 # How fast should the visualization be shown. Default value is '2*time_delta' (meaning 2 frames every second)
+visualizationSpeed = 200 # How fast should the visualization be shown. Default value is '2*time_delta' (meaning 2 frames every second)
 
 t = 0
 10.1 0.2 13.2 # atom 1
