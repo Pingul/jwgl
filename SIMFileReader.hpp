@@ -3,6 +3,9 @@
 
 #include <string>
 #include <map>
+#include <vector>
+
+class SimulationInstant;
 
 class SIMFileReader
 {
@@ -10,7 +13,7 @@ class SIMFileReader
 		SIMFileReader() = default;
 		~SIMFileReader() = default;
 
-		void readSettings(const char* file, std::map<std::string, double>& settings);
+		void readFile(const char* file, std::map<std::string, double>& settings, std::vector<SimulationInstant*>& instants);
 };
 
 #endif

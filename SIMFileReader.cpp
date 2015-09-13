@@ -4,6 +4,9 @@
 #include <regex>
 #include <algorithm>
 #include <exception>
+#include <sstream>
+#include <glm/glm.hpp>
+#include "SimulationInstant.hpp"
 
 std::string trim(const std::string& str, const std::string& whitespace = " \t")
 {
@@ -16,6 +19,17 @@ std::string trim(const std::string& str, const std::string& whitespace = " \t")
 		return "";
 
 	return str.substr(strBegin, strEnd - strBegin + 1);
+}
+
+std::vector<std::string> split(const std::string& str, std::vector<std::string>& items, const char delimiter = ' ')
+{
+	std::stringstream stream{str};
+	std::string item;
+	while (std::getline(stream, item, delimiter))
+	{
+		items.push_back(item);
+	}
+	return items;
 }
 
 std::string strip(const std::string& str, const std::string& comment = "#")
@@ -45,39 +59,89 @@ double statementValue(const std::string& statement)
 	if (!isStatement(statement))
 		throw std::runtime_error{"Expected statement"};
 
-	std::string value{statement.substr(statement.find('=') + 1, std::string::npos)};
-	return std::stod(value);
+	std::string strValue{statement.substr(statement.find('=') + 1, std::string::npos)};
+	double value;
+	try
+	{
+		value = std::stod(strValue);
+	}
+	catch(...)
+	{
+		std::cout << "Could not properly parse '" + statement + "' : expected double" << std::endl;
+	}
+	
+	return value;
 }
 
-void SIMFileReader::readSettings(const char* file, std::map<std::string, double>& settings)
+glm::vec3 readVector(const std::string& str)
+{
+	std::vector<std::string> items;
+	split(str, items);
+	if (items.size() != 3)
+		throw std::runtime_error{"Expected a vector, received '" + str + '"'};
+
+	glm::vec3 position;
+	try
+	{
+		position.x = std::stod(items.at(0));
+		position.y = std::stod(items.at(1));
+		position.z = std::stod(items.at(2));
+	}
+	catch(...)
+	{
+		throw std::runtime_error{"Could not parse the vector: '" + str + '"'};
+	}
+	return position;
+}
+
+void SIMFileReader::readFile(const char* file, std::map<std::string, double>& settings, std::vector<SimulationInstant*>& instants)
 {
 	std::string line;
 	std::ifstream simFile{file};
+	SimulationInstant* instant;
+	std::vector<glm::vec3>* positions;
 	if (simFile.is_open())
 	{
 		while (getline(simFile, line))
 		{
 			std::string trimmedLine{trim(strip(line))};
+			if (trimmedLine.empty())
+				continue;
+
 			if (isStatement(trimmedLine))
 			{
 				std::string variable{statementVariable(trimmedLine)};
-				double value;
-				if (variable.compare("t") == 0) // not a setting, exit
-					break;
+				double value{statementValue(trimmedLine)};
 
-				try
+				if (variable.compare("t") == 0) // not a setting
 				{
-					value = statementValue(trimmedLine);
+					if (instant != nullptr)
+					{
+						instant->setPositions(positions);
+						instants.push_back(instant);
+					}
+
+					instant = new SimulationInstant{value}; // will be the time of the instant
+					positions = new std::vector<glm::vec3>{};
+				} 
+				else
+				{
 					settings.insert(std::pair<std::string, double>{variable, value});
 				}
-				catch(...)
-				{
-					std::cout << "Could not properly parse '" + line + '"' << std::endl;
-				}
+			}
+			else if (positions != nullptr) // the line should be a vector declaration, checking for nullptr so we make sure it is initialized
+			{
+				positions->push_back(readVector(trimmedLine));
 			}
 		}
+		if (instant != nullptr)
+		{
+			instant->setPositions(positions);
+			instants.push_back(instant);
+			instant = nullptr;
+		}
+
 		simFile.close();
 	}
 }
-
 

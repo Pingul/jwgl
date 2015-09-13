@@ -5,12 +5,14 @@
 #include <string>
 #include <iostream>
 #include <exception>
+#include "simulationInstant.hpp"
 
 Simulation::Simulation(const char* file)
 {
 	SIMFileReader reader{};
-	auto settings = new std::map<std::string, double>();
-	reader.readSettings(file, *settings);
+	auto settings = new std::map<std::string, double>{};
+	instants = new std::vector<SimulationInstant*>{};
+	reader.readFile(file, *settings, *instants);
 	for (const std::pair<std::string, double>& setting : *settings)
 	{
 		if (setting.first.compare("timeDelta") == 0)
@@ -33,4 +35,19 @@ void Simulation::validateSimulation()
 
 	if (visualizationSpeed < 0.0)
 		visualizationSpeed = timeDelta;
+
+	for (auto& instant : *instants)
+	{
+		instant->print();
+	}
+
+}
+
+Simulation::~Simulation()
+{
+	for (auto& instant : *instants)
+	{
+		delete instant;
+	}
+	delete instants;
 }
