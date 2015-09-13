@@ -133,6 +133,10 @@ void SIMFileReader::readFile(const char* file, std::map<std::string, double>& se
 			{
 				positions->push_back(readVector(trimmedLine));
 			}
+			else
+			{
+				throw std::runtime_error{"Could not parse '" + line + "'"};
+			}
 		}
 		if (instant != nullptr)
 		{
@@ -140,7 +144,6 @@ void SIMFileReader::readFile(const char* file, std::map<std::string, double>& se
 			instants.push_back(instant);
 			instant = nullptr;
 		}
-
 		simFile.close();
 	}
 }
