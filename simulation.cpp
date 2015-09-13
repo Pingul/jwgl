@@ -36,9 +36,16 @@ void Simulation::validateSimulation()
 	if (visualizationSpeed < 0.0)
 		visualizationSpeed = timeDelta;
 
-	for (auto& instant : *instants)
+	if (instants != nullptr && instants->size() > 0)
 	{
-		instant->print();
+		int nbrObjects{instants->front()->nbrObjects()};
+		for (auto& instant : *instants)
+		{
+			if (instant->nbrObjects() != nbrObjects)
+				throw std::runtime_error{"All simulation instants is not of the same length"};
+
+			instant->print();
+		}
 	}
 
 }

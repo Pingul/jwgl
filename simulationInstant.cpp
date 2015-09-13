@@ -13,6 +13,12 @@ void SimulationInstant::print()
 	}
 }
 
+int SimulationInstant::nbrObjects()
+{
+	if (positions_ == nullptr)
+		return 0;
+	return positions_->size();
+}
 
 SimulationInstant::~SimulationInstant()
 {

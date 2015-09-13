@@ -18,6 +18,7 @@ class SimulationInstant
 
 		void setPositions(std::vector<glm::vec3>* positions) { positions_ = positions; }
 		void print();
+		int nbrObjects();
 
 	private:
 		double time_{0.0};
