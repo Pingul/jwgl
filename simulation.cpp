@@ -12,16 +12,16 @@ Simulation::Simulation(const char* file)
 {
 	SIMFileReader reader{};
 	auto settings = new std::map<std::string, double>{};
-	instants = new std::vector<SimulationInstant*>{};
-	reader.readFile(file, *settings, *instants);
+	_instants = new std::vector<SimulationInstant*>{};
+	reader.readFile(file, *settings, *_instants);
 	for (const std::pair<std::string, double>& setting : *settings)
 	{
 		if (setting.first.compare("timeDelta") == 0)
-			timeDelta = setting.second;
+			_timeDelta = setting.second;
 		else if (setting.first.compare("timeStart") == 0)
-			timeStart = setting.second;
+			_timeStart = setting.second;
 		else if (setting.first.compare("visualizationSpeed") == 0)
-			visualizationSpeed = setting.second;
+			_visualizationSpeed = setting.second;
 		else
 			std::cout << "Given setting was not found: '" << setting.first << '"' << std::endl;
 	}
@@ -31,16 +31,16 @@ Simulation::Simulation(const char* file)
 
 void Simulation::validateSimulation()
 {
-	if (timeDelta < 0.0)
+	if (_timeDelta < 0.0)
 		throw std::runtime_error{"timeDelta is not properly initialized"};
 
-	if (visualizationSpeed < 0.0)
-		visualizationSpeed = timeDelta;
+	if (_visualizationSpeed < 0.0)
+		_visualizationSpeed = _timeDelta;
 
-	if (instants != nullptr && instants->size() > 0)
+	if (_instants != nullptr && _instants->size() > 0)
 	{
-		int nbrObjects{instants->front()->nbrObjects()};
-		for (auto& instant : *instants)
+		int nbrObjects{_instants->front()->nbrObjects()};
+		for (auto& instant : *_instants)
 		{
 			if (instant->nbrObjects() != nbrObjects)
 				throw std::runtime_error{"All simulation instants is not of the same length"};
@@ -51,21 +51,43 @@ void Simulation::validateSimulation()
 
 }
 
-// void Simulation::start()
-// {
-// 	if (instants == nullptr || instants->size() == 0)
-// 		throw std::runtime_error{"The simulation has no simulation instants"};
+void Simulation::start()
+{
+	if (_instants == nullptr || _instants->size() == 0)
+		throw std::runtime_error{"The simulation has no simulation instants"};
 
-// 	// currentInstantIndex = 0;
-// }
+	_currentInstantIndex = 0;
+}
+
+int Simulation::nextInstantIndex(double simulationTime)
+{
+	SimulationInstant* currentInstant = _instants->at(_currentInstantIndex);
+	double timeDiff = simulationTime - currentInstant->timestamp();
+	double frameDiff = timeDiff/_timeDelta;
+	int indexDiff = std::floor(frameDiff);
+	return _currentInstantIndex + indexDiff;
+} 
 
 void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
 {
-	SimulationInstant* nextInstant = instants->at(currentInstantIndex + 1);
-	if (nextInstant->timestamp() < t)
+	double simulationTime = t*_visualizationSpeed + _timeStart;
+	int nextIndex = nextInstantIndex(simulationTime);
+	if (nextIndex + 1 >= _instants->size())
 	{
-		std::cout << "changed instant" << std::endl;
-		currentInstantIndex++;
+		// we can't update the positions
+		static bool b = false;
+		if (!b)
+		{
+			std::cout << "out of data" << std::endl;
+			b = true;
+		}
+		return;
+	}
+
+	SimulationInstant* currentInstant = _instants->at(_currentInstantIndex);
+	SimulationInstant* nextInstant = _instants->at(nextIndex);
+	if (nextInstant != currentInstant)
+	{
 		for (int i = 0; i < objects.size(); i++) // objects and all instants are guaranteed to have the same .size()
 		{
 			objects.at(i)->move(nextInstant->positionFor(i));
@@ -75,17 +97,17 @@ void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
 
 int Simulation::nbrObjects()
 {
-	if (instants == nullptr || instants->size() == 0)
+	if (_instants == nullptr || _instants->size() == 0)
 		throw std::runtime_error{"The simulation has no simulation instants"};
 
-	return instants->at(0)->nbrObjects();
+	return _instants->at(0)->nbrObjects();
 }
 
 Simulation::~Simulation()
 {
-	for (auto& instant : *instants)
+	for (auto& instant : *_instants)
 	{
 		delete instant;
 	}
-	delete instants;
+	delete _instants;
 }

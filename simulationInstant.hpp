@@ -12,19 +12,19 @@ class SimulationInstant
 		~SimulationInstant();
 
 		SimulationInstant(double time = 0.0) :
-			time_{time} {}
+			_time{time} {}
 		SimulationInstant(std::vector<glm::vec3>* positions, double time = 0.0) :
-			time_{time}, positions_{positions} {}
+			_time{time}, _positions{positions} {}
 
-		void setPositions(std::vector<glm::vec3>* positions) { positions_ = positions; }
+		void setPositions(std::vector<glm::vec3>* positions) { _positions = positions; }
 		glm::vec3 positionFor(int index);
 		void print();
-		double timestamp() { return time_; }
+		double timestamp() { return _time; }
 		int nbrObjects();
 
 	private:
-		double time_{0.0};
-		std::vector<glm::vec3>* positions_;
+		double _time{0.0};
+		std::vector<glm::vec3>* _positions;
 
 };
 

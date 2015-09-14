@@ -5,9 +5,9 @@
 
 void SimulationInstant::print()
 {
-	std::cout << "Instant: " << time_ << " size: " << positions_->size() << std::endl;
+	std::cout << "Instant: " << _time << " size: " << _positions->size() << std::endl;
 	int index = 1;
-	for (const auto& position : *positions_)
+	for (const auto& position : *_positions)
 	{
 		std::cout << index << ": " << position.x << " " << position.y << " " << position.z << std::endl;
 		index++;
@@ -16,19 +16,19 @@ void SimulationInstant::print()
 
 int SimulationInstant::nbrObjects()
 {
-	if (positions_ == nullptr)
+	if (_positions == nullptr)
 		return 0;
-	return positions_->size();
+	return _positions->size();
 }
 
 glm::vec3 SimulationInstant::positionFor(int index)
 {
-	if (positions_ == nullptr)
+	if (_positions == nullptr)
 		throw std::runtime_error{"Positions have not been initialized"};
-	return positions_->at(index);
+	return _positions->at(index);
 }
 
 SimulationInstant::~SimulationInstant()
 {
-	delete positions_;
+	delete _positions;
 }

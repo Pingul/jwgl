@@ -33,6 +33,7 @@ void VisualizationGraphicsHandler::init()
 	{
 		_worldObjects->registerWorldObject(new Sphere());
 	}
+	_simulation->start();
 }
 
 void VisualizationGraphicsHandler::setupOpenGL()
@@ -75,7 +76,7 @@ void VisualizationGraphicsHandler::loadLightSources()
 void VisualizationGraphicsHandler::setupCamera()
 {
 	glm::vec3 lookingAt = glm::vec3(0, 0, 0);
-	glm::vec3 location = glm::vec3(5, 5, 0);
+	glm::vec3 location = glm::vec3(0, 0, 5);
 	glm::vec3 upDirection(0, 1, 0);
 	_camera = new Camera(location, lookingAt, upDirection);
 }
@@ -89,23 +90,11 @@ void VisualizationGraphicsHandler::drawFrame(float t)
 	glm::mat4 WTV = _camera->WTVMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
 
-	// static int i = 0;
-	// if (i == 0)
-	// {
-	// 	i++;
-	// 	std::cout << "size: " << _worldObjects->objects()->size() << std::endl;
-	// 	for (const auto& obj : *_worldObjects->objects())
-	// 	{
-	// 		std::cout << "(" << obj->at().x << ", " << obj->at().y << ", " << obj->at().z << ")" << std::endl;
-	// 	}
-	// }
-
 	for (const auto& obj : *_worldObjects->objects())
 	{
 		obj->draw(_shaders->get()->ID());
 	}
 }
-
 
 VisualizationGraphicsHandler::~VisualizationGraphicsHandler()
 {
