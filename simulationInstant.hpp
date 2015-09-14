@@ -17,7 +17,9 @@ class SimulationInstant
 			time_{time}, positions_{positions} {}
 
 		void setPositions(std::vector<glm::vec3>* positions) { positions_ = positions; }
+		glm::vec3 positionFor(int index);
 		void print();
+		double timestamp() { return time_; }
 		int nbrObjects();
 
 	private:

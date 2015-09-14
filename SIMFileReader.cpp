@@ -67,7 +67,7 @@ double statementValue(const std::string& statement)
 	}
 	catch(...)
 	{
-		std::cout << "Could not properly parse '" + statement + "' : expected double" << std::endl;
+		throw std::runtime_error{"Could not properly parse '" + statement + "' : expected double"};
 	}
 	
 	return value;
@@ -98,8 +98,8 @@ void SIMFileReader::readFile(const char* file, std::map<std::string, double>& se
 {
 	std::string line;
 	std::ifstream simFile{file};
-	SimulationInstant* instant;
-	std::vector<glm::vec3>* positions;
+	SimulationInstant* instant{nullptr};
+	std::vector<glm::vec3>* positions{nullptr};
 	if (simFile.is_open())
 	{
 		while (getline(simFile, line))
@@ -129,7 +129,7 @@ void SIMFileReader::readFile(const char* file, std::map<std::string, double>& se
 					settings.insert(std::pair<std::string, double>{variable, value});
 				}
 			}
-			else if (positions != nullptr) // the line should be a vector declaration, checking for nullptr so we make sure it is initialized
+			else if (positions != nullptr) // the line should be a vector declaration, checking for nullptr so we make sure it is initialized. Might be a little unsafe, but hey
 			{
 				positions->push_back(readVector(trimmedLine));
 			}

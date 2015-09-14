@@ -6,6 +6,7 @@
 #include <iostream>
 #include <exception>
 #include "simulationInstant.hpp"
+#include "models.hpp"
 
 Simulation::Simulation(const char* file)
 {
@@ -44,10 +45,40 @@ void Simulation::validateSimulation()
 			if (instant->nbrObjects() != nbrObjects)
 				throw std::runtime_error{"All simulation instants is not of the same length"};
 
-			instant->print();
+			// instant->print();
 		}
 	}
 
+}
+
+// void Simulation::start()
+// {
+// 	if (instants == nullptr || instants->size() == 0)
+// 		throw std::runtime_error{"The simulation has no simulation instants"};
+
+// 	// currentInstantIndex = 0;
+// }
+
+void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
+{
+	SimulationInstant* nextInstant = instants->at(currentInstantIndex + 1);
+	if (nextInstant->timestamp() < t)
+	{
+		std::cout << "changed instant" << std::endl;
+		currentInstantIndex++;
+		for (int i = 0; i < objects.size(); i++) // objects and all instants are guaranteed to have the same .size()
+		{
+			objects.at(i)->move(nextInstant->positionFor(i));
+		}
+	}
+}
+
+int Simulation::nbrObjects()
+{
+	if (instants == nullptr || instants->size() == 0)
+		throw std::runtime_error{"The simulation has no simulation instants"};
+
+	return instants->at(0)->nbrObjects();
 }
 
 Simulation::~Simulation()

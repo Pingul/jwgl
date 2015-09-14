@@ -6,6 +6,8 @@
 class LightSourceLoader;
 class ShaderManager;
 class Camera;
+class WorldObjectManager;
+class Simulation;
 
 class VisualizationGraphicsHandler : public jwgl::GraphicsHandler
 {
@@ -20,6 +22,8 @@ class VisualizationGraphicsHandler : public jwgl::GraphicsHandler
 		ShaderManager* _shaders;
 		Camera* _camera;
 		LightSourceLoader* _lightSources;
+		WorldObjectManager* _worldObjects;
+		Simulation* _simulation;
 
 		void setupOpenGL();
 		void loadShaders();

@@ -13,10 +13,10 @@
 
 
 # Beginning of comment
-settings1 = value1
+#settings1 = value1
 
 # The value will be regarded. Output to standard out should be given.
-non_existing_setting = value
+#non_existing_setting = value
 
 
 # Necessary settings
@@ -25,15 +25,17 @@ timeDelta = 100
 # Optional settings
 timeStart = 10 # Potentially start later in the simulation. Default value is 0.
 
-visualizationSpeed = 200 # How fast should the visualization be shown. Default value is '2*time_delta' (meaning 2 frames every second)
+visualizationSpeed = 100 # How fast should the visualization be shown. Default value is '2*time_delta' (meaning 2 frames every second)
 
 t = 0
 10.1 0.2 13.2 # atom 1
 -1.2 0.4 11.0 # atom 2
+0 0 0
 
 t = 100 # step should match 'time_delta'
 11.1 0.2 13.2 # atom 1
 -5.2 -0.4 1.0 # atom 2
+0 0 0
 
 
 
