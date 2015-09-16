@@ -23,4 +23,23 @@ class Camera
 		bool lookVecTooCloseToUpDirection(glm::vec3 lookVec);
 };
 
+// class DragCamera // These should maybe have a common main class
+// {
+// 	public:
+// 		DragCamera() = default;
+// 		~DragCamera() = default;
+
+// 		void updateDirection(int newX, int newY);
+// 		void 
+
+// 	private: 
+// 		glm::vec3 _location{0, 0, 5};
+// 		glm::vec3 _lookingAt{0, 0, 0};
+// 		glm::vec3 _upDirection{0, 1, 0};
+
+// 		glm::vec3 _movement{0, 0, 0}; // Using this to have some feeling of momentum
+
+// };
+
+
 #endif
