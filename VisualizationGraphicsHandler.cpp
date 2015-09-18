@@ -72,19 +72,37 @@ void VisualizationGraphicsHandler::loadLightSources()
 	printError("upload light sources");
 }
 
+// This is a ugly solution as I can not use a class member pointer for GLFW. C library only.
+static DragCamera* CAMERA_REF; 
+void onClick(GLFWwindow* window, int button, int action, int mods)
+{
+	std::cout << "Click " << button << std::endl;
+	if (action == GLFW_PRESS)
+	{
+		double xPos;
+		double yPos;
+		glfwGetCursorPos(window, &xPos, &yPos);
+		CAMERA_REF->anchor({xPos, yPos});
+		CAMERA_REF->print();
+		std::cout << "----" << std::endl;
+	}
+}
 
 void VisualizationGraphicsHandler::setupCamera()
 {
 	glm::vec3 lookingAt = glm::vec3(0, 0, 0);
 	glm::vec3 location = glm::vec3(0, 0, 5);
 	glm::vec3 upDirection(0, 1, 0);
-	_camera = new Camera(location, lookingAt, upDirection);
+	_camera = new DragCamera(location, lookingAt, upDirection);
+	CAMERA_REF = _camera;
+	glfwSetMouseButtonCallback(_window, &onClick);
 }
 
 void VisualizationGraphicsHandler::drawFrame(float t)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	handleMouseMovement();
 	_simulation->updatePositions(*_worldObjects->objects(), t);
 
 	glm::mat4 WTV = _camera->WTVMatrix();
@@ -93,6 +111,17 @@ void VisualizationGraphicsHandler::drawFrame(float t)
 	for (const auto& obj : *_worldObjects->objects())
 	{
 		obj->draw(_shaders->get()->ID());
+	}
+}
+
+void VisualizationGraphicsHandler::handleMouseMovement()
+{
+	if (glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	{
+		double xPos;
+		double yPos;
+		glfwGetCursorPos(_window, &xPos, &yPos);
+		_camera->updatePosition({xPos, yPos});
 	}
 }
 

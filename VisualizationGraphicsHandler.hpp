@@ -5,7 +5,7 @@
 
 class LightSourceLoader;
 class ShaderManager;
-class Camera;
+class DragCamera;
 class WorldObjectManager;
 class Simulation;
 
@@ -20,15 +20,17 @@ class VisualizationGraphicsHandler : public jwgl::GraphicsHandler
 
 	private:
 		ShaderManager* _shaders;
-		Camera* _camera;
+		DragCamera* _camera;
 		LightSourceLoader* _lightSources;
 		WorldObjectManager* _worldObjects;
 		Simulation* _simulation;
+
 
 		void setupOpenGL();
 		void loadShaders();
 		void loadLightSources();
 		void setupCamera();
+		void handleMouseMovement();
 };
 
 #endif

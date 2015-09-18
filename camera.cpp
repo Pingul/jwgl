@@ -2,6 +2,9 @@
 #include "camera.hpp"
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
+#include <iostream>
 
 #define LOOK_VEC_THRESHHOLD 0.9
 
@@ -71,4 +74,46 @@ void Camera::takeStep(glm::vec3 directionRelativeToCamera)
 glm::mat4 Camera::WTVMatrix()
 {
 	return glm::lookAt(_location, _lookingAt, _upDirection);
+}
+
+glm::mat4 DragCamera::WTVMatrix()
+{
+	return glm::lookAt(_location, _lookingAt, _upDirection);
+}
+
+
+void DragCamera::anchor(glm::vec2 point)
+{
+	_anchor = point;
+	_velocity = {0, 0, 0};
+}
+
+void DragCamera::updatePosition(glm::vec2 toPoint)
+{
+	glm::vec2 direction = toPoint - _anchor;
+	glm::vec3 forward = glm::normalize(_location - _lookingAt);
+	glm::vec3 perpendicular = glm::cross(forward, _upDirection);
+
+	glm::vec3 movementVec = glm::normalize(direction.x*perpendicular + direction.y*_upDirection);
+	glm::vec3 rotationAxis = glm::cross(movementVec, forward);
+
+	static const float angle = 0.5;
+
+	_location = glm::rotate(_location, angle, rotationAxis);
+	_lookingAt = glm::rotate(_lookingAt, angle, rotationAxis);
+	_upDirection = glm::rotate(_upDirection, angle, rotationAxis);
+
+}
+
+void DragCamera::print()
+{
+	std::cout 
+		<< "loc: {" << _location.x << ", " << _location.y << ", " << _location.z << "}" << std::endl
+		<< "lookAt: {" << _lookingAt.x << ", " << _lookingAt.y << ", " << _lookingAt.z << "}" << std::endl
+		<< "up: {" << _upDirection.x << ", " << _upDirection.y << ", " << _upDirection.z << "}" << std::endl;
+}
+
+void DragCamera::updatePosition()
+{
+
 }
