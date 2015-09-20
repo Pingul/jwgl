@@ -43,7 +43,9 @@ class DragCamera // These should maybe have a common main class
 		glm::vec3 _lookingAt{0, 0, 0};
 		glm::vec3 _upDirection{0, 1, 0};
 
-		glm::vec3 _velocity{0, 0, 0}; // Using this to have some feeling of momentum
+		glm::vec2 _velocity{0, 0}; // Using this to have some feeling of momentum
+
+		void calculateNewVectorsForDirection(glm::vec2 direction);
 };
 
 

@@ -2,11 +2,23 @@
 #include "camera.hpp"
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+// #include <glm/gtx/rotate_vector.hpp>
 
 #include <iostream>
 
 #define LOOK_VEC_THRESHHOLD 0.9
+
+std::ostream& operator<<(std::ostream& os, const glm::vec3 vec)
+{
+	os << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const glm::vec2 vec)
+{
+	os << "{" << vec.x << ", " << vec.y << "}";
+	return os;
+}
 
 int sign(int value)
 {
@@ -85,35 +97,38 @@ glm::mat4 DragCamera::WTVMatrix()
 void DragCamera::anchor(glm::vec2 point)
 {
 	_anchor = point;
-	_velocity = {0, 0, 0};
+	_velocity = {0, 0};
 }
 
 void DragCamera::updatePosition(glm::vec2 toPoint)
 {
 	glm::vec2 direction = toPoint - _anchor;
+	calculateNewVectorsForDirection(direction);
+	_anchor = toPoint;
+}
+
+void DragCamera::updatePosition()
+{
+	_velocity /= 1.1;
+	calculateNewVectorsForDirection(_velocity);
+}
+
+void DragCamera::calculateNewVectorsForDirection(glm::vec2 direction)
+{
+	_velocity = direction;
+	if (glm::length(direction) == 0)
+		return;
+
 	glm::vec3 forward = glm::normalize(_location - _lookingAt);
 	glm::vec3 perpendicular = glm::cross(forward, _upDirection);
 
 	glm::vec3 movementVec = glm::normalize(direction.x*perpendicular + direction.y*_upDirection);
 	glm::vec3 rotationAxis = glm::cross(movementVec, forward);
 
-	static const float angle = 0.5;
+	static const float angle = 0.01;
+	glm::mat3 rotationMatrix = glm::mat3(glm::rotate(-glm::length(direction)*angle, rotationAxis));
 
-	_location = glm::rotate(_location, angle, rotationAxis);
-	_lookingAt = glm::rotate(_lookingAt, angle, rotationAxis);
-	_upDirection = glm::rotate(_upDirection, angle, rotationAxis);
-
-}
-
-void DragCamera::print()
-{
-	std::cout 
-		<< "loc: {" << _location.x << ", " << _location.y << ", " << _location.z << "}" << std::endl
-		<< "lookAt: {" << _lookingAt.x << ", " << _lookingAt.y << ", " << _lookingAt.z << "}" << std::endl
-		<< "up: {" << _upDirection.x << ", " << _upDirection.y << ", " << _upDirection.z << "}" << std::endl;
-}
-
-void DragCamera::updatePosition()
-{
-
+	_location = rotationMatrix*_location;
+	_lookingAt = rotationMatrix*_lookingAt;
+	_upDirection = rotationMatrix*_upDirection;
 }

@@ -83,8 +83,6 @@ void onClick(GLFWwindow* window, int button, int action, int mods)
 		double yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
 		CAMERA_REF->anchor({xPos, yPos});
-		CAMERA_REF->print();
-		std::cout << "----" << std::endl;
 	}
 }
 
@@ -122,6 +120,10 @@ void VisualizationGraphicsHandler::handleMouseMovement()
 		double yPos;
 		glfwGetCursorPos(_window, &xPos, &yPos);
 		_camera->updatePosition({xPos, yPos});
+	}
+	else
+	{
+		_camera->updatePosition();
 	}
 }
 
