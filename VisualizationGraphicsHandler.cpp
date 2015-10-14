@@ -20,6 +20,11 @@
 #define BOTTOM -1.0
 #define TOP 1.0
 
+VisualizationGraphicsHandler::VisualizationGraphicsHandler(const std::string& file)
+{
+	_file = file;
+}
+
 void VisualizationGraphicsHandler::init()
 {
 	loadShaders();
@@ -27,7 +32,7 @@ void VisualizationGraphicsHandler::init()
 	setupCamera();
 	setupOpenGL();
 
-	_simulation = new Simulation{"sim-format.txt"};
+	_simulation = new Simulation{_file.c_str()};
 	_worldObjects = new WorldObjectManager{};
 	for (int i = 0; i < _simulation->nbrObjects(); i++)
 	{
@@ -76,7 +81,6 @@ void VisualizationGraphicsHandler::loadLightSources()
 static DragCamera* CAMERA_REF; 
 void onClick(GLFWwindow* window, int button, int action, int mods)
 {
-	std::cout << "Click " << button << std::endl;
 	if (action == GLFW_PRESS)
 	{
 		double xPos;

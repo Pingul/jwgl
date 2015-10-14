@@ -2,6 +2,7 @@
 #define _VISUALIZATION_GRAPHICS_HANDLER_
 
 #include "GraphicsHandler.hpp"
+#include <string>
 
 class LightSourceLoader;
 class ShaderManager;
@@ -12,13 +13,15 @@ class Simulation;
 class VisualizationGraphicsHandler : public jwgl::GraphicsHandler
 {
 	public:
-		VisualizationGraphicsHandler() = default;
+		VisualizationGraphicsHandler() = delete;
+		VisualizationGraphicsHandler(const std::string& file);
 		virtual ~VisualizationGraphicsHandler();
 
 		virtual void init();
 		virtual void drawFrame(float t);
 
 	private:
+		std::string _file;
 		ShaderManager* _shaders;
 		DragCamera* _camera;
 		LightSourceLoader* _lightSources;
