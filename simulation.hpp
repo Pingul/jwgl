@@ -2,6 +2,7 @@
 #define _SIMULATION_
 
 #include <vector>
+#include <glm/glm.hpp>
 #include "simulationInstant.hpp"
 
 class WorldObject;
@@ -14,6 +15,7 @@ class Simulation
 
 		void start();
 		void updatePositions(std::vector<WorldObject*>& objects, float t);
+		glm::mat4 simulationTranslation();
 
 		int nbrObjects(); // Used temporarily when we now that no additions of atoms will be made during simulation
 
@@ -21,6 +23,7 @@ class Simulation
 		double _timeDelta{-1.0};
 		double _timeStart{0.0};
 		double _visualizationSpeed{-1.0};
+		glm::vec3 _dimensions{0, 0, 0};
 		std::vector<SimulationInstant*>* _instants;
 		int _currentInstantIndex{-1};
 

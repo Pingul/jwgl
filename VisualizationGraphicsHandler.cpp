@@ -87,7 +87,13 @@ void onClick(GLFWwindow* window, int button, int action, int mods)
 		double yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
 		CAMERA_REF->anchor({xPos, yPos});
+		// When we click we anchor the view so we do not move
 	}
+}
+
+void onScroll(GLFWwindow* window, double xOffset, double yOffset)
+{
+	CAMERA_REF->zoom(yOffset);
 }
 
 void VisualizationGraphicsHandler::setupCamera()
@@ -98,6 +104,7 @@ void VisualizationGraphicsHandler::setupCamera()
 	_camera = new DragCamera(location, lookingAt, upDirection);
 	CAMERA_REF = _camera;
 	glfwSetMouseButtonCallback(_window, &onClick);
+	glfwSetScrollCallback(_window, &onScroll);
 }
 
 void VisualizationGraphicsHandler::drawFrame(float t)
@@ -107,7 +114,7 @@ void VisualizationGraphicsHandler::drawFrame(float t)
 	handleMouseMovement();
 	_simulation->updatePositions(*_worldObjects->objects(), t);
 
-	glm::mat4 WTV = _camera->WTVMatrix();
+	glm::mat4 WTV = _camera->WTVMatrix()*_simulation->simulationTranslation();
 	glUniformMatrix4fv(glGetUniformLocation(_shaders->get()->ID(), "WTV"), 1, GL_FALSE, glm::value_ptr(WTV));
 
 	for (const auto& obj : *_worldObjects->objects())
@@ -127,6 +134,7 @@ void VisualizationGraphicsHandler::handleMouseMovement()
 	}
 	else
 	{
+		// We continously update the position to get the feeling of soft scrolling
 		_camera->updatePosition();
 	}
 }

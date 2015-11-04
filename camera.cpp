@@ -111,6 +111,8 @@ void DragCamera::updatePosition()
 {
 	_velocity /= 1.1;
 	calculateNewVectorsForDirection(_velocity);
+	_zoomVelocity /= 1.2;
+	calculateNewVectorsForZoom(_zoomVelocity);
 }
 
 void DragCamera::calculateNewVectorsForDirection(glm::vec2 direction)
@@ -131,4 +133,22 @@ void DragCamera::calculateNewVectorsForDirection(glm::vec2 direction)
 	_location = rotationMatrix*_location;
 	_lookingAt = rotationMatrix*_lookingAt;
 	_upDirection = rotationMatrix*_upDirection;
+}
+
+void DragCamera::calculateNewVectorsForZoom(float zoomVelocity)
+{
+	static const float stepLength = 0.01;
+	glm::vec3 lookVec = _lookingAt - _location;
+
+	if (glm::length(lookVec) < 1.0 && zoomVelocity < 0.0)
+		return;
+
+	lookVec = stepLength*zoomVelocity*lookVec + lookVec;
+	_location = _lookingAt - lookVec;
+
+}
+
+void DragCamera::zoom(float direction)
+{
+	_zoomVelocity += direction;
 }

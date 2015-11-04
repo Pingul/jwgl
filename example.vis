@@ -24,6 +24,9 @@ timeDelta = 100
 
 # Optional settings
 timeStart = 0 # Potentially start later in the simulation. Default value is 0.
+dimensions.x = 5
+dimensions.y = 5
+dimensions.z = 5
 
 visualizationSpeed = 50000 # How fast should the visualization be shown. Default value is '2*time_delta' (meaning 2 frames every second)
 

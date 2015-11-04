@@ -33,6 +33,7 @@ class DragCamera // These should maybe have a common main class
 		void anchor(glm::vec2 point); // Relative to screen
 		void updatePosition(glm::vec2 toPoint); // Called if the mousebutton is pressed
 		void updatePosition(); // Called otherwise
+		void zoom(float direction); // + in, -
 		void print();
 		glm::mat4 WTVMatrix();
 		glm::vec3 at() { return _location; }
@@ -44,8 +45,10 @@ class DragCamera // These should maybe have a common main class
 		glm::vec3 _upDirection{0, 1, 0};
 
 		glm::vec2 _velocity{0, 0}; // Using this to have some feeling of momentum
+		float _zoomVelocity{0};
 
 		void calculateNewVectorsForDirection(glm::vec2 direction);
+		void calculateNewVectorsForZoom(float zoomVelocity);
 };
 
 

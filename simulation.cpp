@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <exception>
+#include <glm/gtc/matrix_transform.hpp>
 #include "simulationInstant.hpp"
 #include "models.hpp"
 
@@ -22,6 +23,12 @@ Simulation::Simulation(const char* file)
 			_timeStart = setting.second;
 		else if (setting.first.compare("visualizationSpeed") == 0)
 			_visualizationSpeed = setting.second;
+		else if (setting.first.compare("dimensions.x") == 0)
+			_dimensions.x = setting.second;
+		else if (setting.first.compare("dimensions.y") == 0)
+			_dimensions.y = setting.second;
+		else if (setting.first.compare("dimensions.z") == 0)
+			_dimensions.z = setting.second;
 		else
 			std::cout << "Given setting was not found: '" << setting.first << '"' << std::endl;
 	}
@@ -48,7 +55,11 @@ void Simulation::validateSimulation()
 			// instant->print();
 		}
 	}
+}
 
+glm::mat4 Simulation::simulationTranslation()
+{
+	return glm::translate(glm::mat4(), -glm::vec3{_dimensions.x/2, _dimensions.y/2, _dimensions.z/2});
 }
 
 void Simulation::start()
