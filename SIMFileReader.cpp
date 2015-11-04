@@ -119,6 +119,8 @@ void SIMFileReader::readFile(const char* file, std::map<std::string, double>& se
 					{
 						instant->setPositions(positions);
 						instants.push_back(instant);
+						if (instants.size() % 10 == 0)
+							std::cout << instants.size() << " instants read" << std::endl;
 					}
 
 					instant = new SimulationInstant{value}; // will be the time of the instant
