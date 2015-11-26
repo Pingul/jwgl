@@ -15,8 +15,8 @@ class Simulation
 
 		void start(float t);
 		void restart(float t);
-		void increaseVisualizationSpeed();
-		void decreaseVisualizationSpeed();
+		double increaseVisualizationSpeed();
+		double decreaseVisualizationSpeed();
 		void updatePositions(std::vector<WorldObject*>& objects, float t);
 		glm::mat4 simulationTranslation();
 

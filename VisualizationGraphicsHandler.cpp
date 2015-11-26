@@ -157,13 +157,21 @@ void VisualizationGraphicsHandler::manageUserKeyInput(float t)
 	}
 	else if(glfwGetKey(_window, GLFW_KEY_UP))
 	{
-		_simulation->increaseVisualizationSpeed();
-		std::cout << "simspeed increase" << std::endl;
+		static float lastT = 0;
+		if (t - lastT > 0.5)
+		{
+			std::cout << "simspeed: " << _simulation->increaseVisualizationSpeed() << std::endl;
+			lastT = t;
+		}
 	}
 	else if (glfwGetKey(_window, GLFW_KEY_DOWN))
 	{
-		_simulation->decreaseVisualizationSpeed();
-		std::cout << "simspeed decrease" << std::endl;
+		static float lastT = 0;
+		if (t - lastT > 0.5)
+		{
+			std::cout << "simspeed: " << _simulation->decreaseVisualizationSpeed() << std::endl;
+			lastT = t;
+		}
 	}
 }
 

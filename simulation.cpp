@@ -47,18 +47,6 @@ void Simulation::validateSimulation()
 
 	if (_visualizationSpeed < 0.0)
 		_visualizationSpeed = _timeDelta;
-
-	// if (_instants != nullptr && _instants->size() > 0)
-	// {
-	// 	int nbrObjects{_instants->front()->nbrObjects()};
-	// 	for (auto& instant : *_instants)
-	// 	{
-	// 		if (instant->nbrObjects() != nbrObjects)
-	// 			throw std::runtime_error{"All simulation instants is not of the same length"};
-
-	// 		// instant->print();
-	// 	}
-	// }
 }
 
 glm::mat4 Simulation::simulationTranslation()
@@ -83,15 +71,17 @@ void Simulation::restart(float t)
 	_localtime = 0.0;
 }
 
-void Simulation::increaseVisualizationSpeed()
+double Simulation::increaseVisualizationSpeed()
 {
 	_visualizationSpeed += 1;
+	return _visualizationSpeed;
 }
 
-void Simulation::decreaseVisualizationSpeed()
+double Simulation::decreaseVisualizationSpeed()
 {
 	if (_visualizationSpeed - 1.0 > 0.0)
 		_visualizationSpeed -= 1;
+	return _visualizationSpeed;
 }
 
 
@@ -107,7 +97,7 @@ int Simulation::nextInstantIndex(double t)
 void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
 {
 	_localtime = t - _timeoffset;
-	int nextIndex = nextInstantIndex(_localtime);
+	int nextIndex = nextInstantIndex(_localtime*_visualizationSpeed);
 	if (nextIndex + 1 >= _instants->size())
 	{
 		// we can't update the positions
