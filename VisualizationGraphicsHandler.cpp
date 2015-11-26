@@ -1,4 +1,5 @@
 #include "misc.hpp"
+#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -38,7 +39,7 @@ void VisualizationGraphicsHandler::init()
 	{
 		_worldObjects->registerWorldObject(new Sphere());
 	}
-	_simulation->start();
+	_simulation->start(glfwGetTime());
 }
 
 void VisualizationGraphicsHandler::setupOpenGL()
