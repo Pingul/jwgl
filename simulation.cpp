@@ -71,15 +71,34 @@ void Simulation::start(float t)
 	if (_instants == nullptr || _instants->size() == 0)
 		throw std::runtime_error{"The simulation has no simulation instants"};
 
-	_localtime = 0;
+	_localtime = 0.0;
 	_timeoffset = t;
 	_currentInstantIndex = 0;
 }
 
-int Simulation::nextInstantIndex(double simulationTime)
+void Simulation::restart(float t)
+{
+	_currentInstantIndex = 0;
+	_timeoffset = t;
+	_localtime = 0.0;
+}
+
+void Simulation::increaseVisualizationSpeed()
+{
+	_visualizationSpeed += 1;
+}
+
+void Simulation::decreaseVisualizationSpeed()
+{
+	if (_visualizationSpeed - 1.0 > 0.0)
+		_visualizationSpeed -= 1;
+}
+
+
+int Simulation::nextInstantIndex(double t)
 {
 	SimulationInstant* currentInstant = _instants->at(_currentInstantIndex);
-	double timeDiff = simulationTime - currentInstant->timestamp();
+	double timeDiff = t - currentInstant->timestamp();
 	double frameDiff = timeDiff/_timeDelta;
 	int indexDiff = std::floor(frameDiff);
 	return _currentInstantIndex + indexDiff;

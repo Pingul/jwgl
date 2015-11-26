@@ -14,6 +14,9 @@ class Simulation
 		Simulation(const char* file); // Read the simulation data from file
 
 		void start(float t);
+		void restart(float t);
+		void increaseVisualizationSpeed();
+		void decreaseVisualizationSpeed();
 		void updatePositions(std::vector<WorldObject*>& objects, float t);
 		glm::mat4 simulationTranslation();
 

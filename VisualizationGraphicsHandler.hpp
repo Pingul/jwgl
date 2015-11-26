@@ -28,6 +28,7 @@ class VisualizationGraphicsHandler : public jwgl::GraphicsHandler
 		WorldObjectManager* _worldObjects;
 		Simulation* _simulation;
 
+		void manageUserKeyInput(float t);
 
 		void setupOpenGL();
 		void loadShaders();
