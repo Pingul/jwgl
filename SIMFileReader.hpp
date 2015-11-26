@@ -7,13 +7,13 @@
 
 class SimulationInstant;
 
-class SIMFileReader
-{
-	public:
-		SIMFileReader() = default;
-		~SIMFileReader() = default;
 
-		void readFile(const char* file, std::map<std::string, double>& settings, std::vector<SimulationInstant*>& instants);
-};
+namespace fileIO
+{
+	namespace SIM
+	{
+		void read(const char* file, std::map<std::string, double>& settings, std::vector<SimulationInstant*>& instants);		
+	}
+}
 
 #endif

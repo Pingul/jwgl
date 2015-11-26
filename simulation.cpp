@@ -9,18 +9,21 @@
 #include "simulationInstant.hpp"
 #include "models.hpp"
 
+#include <thread>
+#include <chrono>
+
 Simulation::Simulation(const char* file)
 {
-	SIMFileReader reader{};
 	auto settings = new std::map<std::string, double>{};
 	_instants = new std::vector<SimulationInstant*>{};
-	reader.readFile(file, *settings, *_instants);
+	std::thread thread{&fileIO::SIM::read, file, std::ref(*settings), std::ref(*_instants)};
+	thread.detach();
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // should be enough
+	
 	for (const std::pair<std::string, double>& setting : *settings)
 	{
 		if (setting.first.compare("timeDelta") == 0)
 			_timeDelta = setting.second;
-		else if (setting.first.compare("timeStart") == 0)
-			_timeStart = setting.second;
 		else if (setting.first.compare("visualizationSpeed") == 0)
 			_visualizationSpeed = setting.second;
 		else if (setting.first.compare("dimensions.x") == 0)
@@ -32,8 +35,9 @@ Simulation::Simulation(const char* file)
 		else
 			std::cout << "Given setting was not found: '" << setting.first << '"' << std::endl;
 	}
+	std::cout << "here" << std::endl;
 	validateSimulation();
-	delete settings;
+	// delete settings;
 }
 
 void Simulation::validateSimulation()
@@ -44,17 +48,17 @@ void Simulation::validateSimulation()
 	if (_visualizationSpeed < 0.0)
 		_visualizationSpeed = _timeDelta;
 
-	if (_instants != nullptr && _instants->size() > 0)
-	{
-		int nbrObjects{_instants->front()->nbrObjects()};
-		for (auto& instant : *_instants)
-		{
-			if (instant->nbrObjects() != nbrObjects)
-				throw std::runtime_error{"All simulation instants is not of the same length"};
+	// if (_instants != nullptr && _instants->size() > 0)
+	// {
+	// 	int nbrObjects{_instants->front()->nbrObjects()};
+	// 	for (auto& instant : *_instants)
+	// 	{
+	// 		if (instant->nbrObjects() != nbrObjects)
+	// 			throw std::runtime_error{"All simulation instants is not of the same length"};
 
-			// instant->print();
-		}
-	}
+	// 		// instant->print();
+	// 	}
+	// }
 }
 
 glm::mat4 Simulation::simulationTranslation()
@@ -62,11 +66,13 @@ glm::mat4 Simulation::simulationTranslation()
 	return glm::translate(glm::mat4(), -glm::vec3{_dimensions.x/2, _dimensions.y/2, _dimensions.z/2});
 }
 
-void Simulation::start()
+void Simulation::start(float t)
 {
 	if (_instants == nullptr || _instants->size() == 0)
 		throw std::runtime_error{"The simulation has no simulation instants"};
 
+	_localtime = 0;
+	_timeoffset = t;
 	_currentInstantIndex = 0;
 }
 
@@ -81,8 +87,8 @@ int Simulation::nextInstantIndex(double simulationTime)
 
 void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
 {
-	double simulationTime = t*_visualizationSpeed + _timeStart;
-	int nextIndex = nextInstantIndex(simulationTime);
+	_localtime = t - _timeoffset;
+	int nextIndex = nextInstantIndex(_localtime);
 	if (nextIndex + 1 >= _instants->size())
 	{
 		// we can't update the positions
