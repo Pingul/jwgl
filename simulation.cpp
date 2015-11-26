@@ -70,6 +70,24 @@ void Simulation::start()
 	_currentInstantIndex = 0;
 }
 
+void Simulation::restart(float t)
+{
+	_currentInstantIndex = 0;
+	_timeOffset = t;
+}
+
+void Simulation::increaseVisualizationSpeed()
+{
+	_visualizationSpeed += 1;
+}
+
+void Simulation::decreaseVisualizationSpeed()
+{
+	if (_visualizationSpeed - 1.0 > 0.0)
+		_visualizationSpeed -= 1;
+}
+
+
 int Simulation::nextInstantIndex(double simulationTime)
 {
 	SimulationInstant* currentInstant = _instants->at(_currentInstantIndex);
@@ -81,7 +99,7 @@ int Simulation::nextInstantIndex(double simulationTime)
 
 void Simulation::updatePositions(std::vector<WorldObject*>& objects, float t)
 {
-	double simulationTime = t*_visualizationSpeed + _timeStart;
+	double simulationTime = t*_visualizationSpeed + _timeStart - _timeOffset;
 	int nextIndex = nextInstantIndex(simulationTime);
 	if (nextIndex + 1 >= _instants->size())
 	{

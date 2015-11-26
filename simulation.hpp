@@ -14,6 +14,9 @@ class Simulation
 		Simulation(const char* file); // Read the simulation data from file
 
 		void start();
+		void restart(float t);
+		void increaseVisualizationSpeed();
+		void decreaseVisualizationSpeed();
 		void updatePositions(std::vector<WorldObject*>& objects, float t);
 		glm::mat4 simulationTranslation();
 
@@ -22,6 +25,7 @@ class Simulation
 	private:
 		double _timeDelta{-1.0};
 		double _timeStart{0.0};
+		double _timeOffset{0.0};
 		double _visualizationSpeed{-1.0};
 		glm::vec3 _dimensions{0, 0, 0};
 		std::vector<SimulationInstant*>* _instants;

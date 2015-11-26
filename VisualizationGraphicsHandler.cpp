@@ -20,6 +20,7 @@
 #define BOTTOM -1.0
 #define TOP 1.0
 
+
 VisualizationGraphicsHandler::VisualizationGraphicsHandler(const std::string& file)
 {
 	_file = file;
@@ -112,6 +113,7 @@ void VisualizationGraphicsHandler::drawFrame(float t)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	handleMouseMovement();
+	manageUserKeyInput(t);
 	_simulation->updatePositions(*_worldObjects->objects(), t);
 
 	glm::mat4 WTV = _camera->WTVMatrix()*_simulation->simulationTranslation();
@@ -136,6 +138,31 @@ void VisualizationGraphicsHandler::handleMouseMovement()
 	{
 		// We continously update the position to get the feeling of soft scrolling
 		_camera->updatePosition();
+	}
+}
+
+void VisualizationGraphicsHandler::manageUserKeyInput(float t)
+{
+	// Restart simulation from the beginning
+	if (glfwGetKey(_window, GLFW_KEY_R))
+	{
+		static float lastT = 0;
+		if (t - lastT > 0.5)
+		{
+			lastT = t;
+			_simulation->restart(t);
+			std::cout << "restart" << std::endl;
+		}
+	}
+	else if(glfwGetKey(_window, GLFW_KEY_UP))
+	{
+		_simulation->increaseVisualizationSpeed();
+		std::cout << "simspeed increase" << std::endl;
+	}
+	else if (glfwGetKey(_window, GLFW_KEY_DOWN))
+	{
+		_simulation->decreaseVisualizationSpeed();
+		std::cout << "simspeed decrease" << std::endl;
 	}
 }
 
